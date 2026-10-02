@@ -91,8 +91,10 @@ data: [
     ]
 };
 
+/* El script se emite justo despues de <canvas>, asi que el elemento ya
+   existe: no hace falta esperar al DOM ni usar jQuery/Prototype. */
+(function(){
 var ctx = document.getElementById('<?php echo $divid;?>').getContext('2d');
-$('document').ready(function(){
 var myChart = new Chart(ctx, {
 type: 'bar',
 	data: barChartData_<?php echo $divid;?>,
@@ -108,7 +110,7 @@ type: 'bar',
 		responsive: true
 	}
 });
-});
+})();
 </script>
 
 <?php
