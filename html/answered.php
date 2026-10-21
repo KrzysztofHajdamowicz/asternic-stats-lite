@@ -47,16 +47,17 @@ include("sesvars.php");
 $query = "SELECT count(ev.event) AS num, ev.event AS action ";
 $query.= "FROM queue_stats AS qs, qname AS q, qevent AS ev WHERE ";
 $query.= "qs.qname = q.qname_id and qs.qevent = ev.event_id and qs.datetime >= '%s' and ";
-$query.= "qs.datetime <= '%s' and q.queue IN ($queue) AND ";
+$query.= "qs.datetime <= '%s' and q.queue IN ($queue_sql) AND ";
 $query.= "ev.event IN ('COMPLETECALLER', 'COMPLETEAGENT') ";
 $query.= "GROUP BY ev.event ORDER BY ev.event";
 
 $hangup_cause["COMPLETECALLER"]=0;
 $hangup_cause["COMPLETEAGENT"]=0;
+$total_hangup=0;
 $res = $midb->consulta($query,array($start,$end));
 while($row=$midb->fetch_row($res)) {
-  $hangup_cause["$row[1]"]=$row[0];
-  $total_hangup+=$row[0];
+  $hangup_cause["$row[1]"]=(int)$row[0];
+  $total_hangup+=(int)$row[0];
 }
 
 $query = "SELECT qs.datetime AS datetime, q.queue AS qname, ag.agent AS qagent, "; 
@@ -64,7 +65,7 @@ $query.= "ac.event AS qevent, qs.info1 AS info1, qs.info2 AS info2,  qs.info3 AS
 $query.= "FROM queue_stats AS qs, qname AS q, qagent AS ag, qevent AS ac WHERE ";
 $query.= "qs.qname = q.qname_id AND qs.qagent = ag.agent_id AND qs.qevent = ac.event_id AND ";
 $query.= "qs.datetime >= '%s' AND qs.datetime <= '%s' AND ";
-$query.= "q.queue IN ($queue) AND ag.agent in ($agent) AND ac.event IN ('COMPLETECALLER', 'COMPLETEAGENT','TRANSFER','CONNECT') ORDER BY qs.datetime";
+$query.= "q.queue IN ($queue_sql) AND ag.agent in ($agent_sql) AND ac.event IN ('COMPLETECALLER', 'COMPLETEAGENT','TRANSFER','CONNECT') ORDER BY qs.datetime";
 
 $answer["15"]=0;
 $answer["30"]=0;
@@ -77,20 +78,34 @@ $answer["91+"]=0;
 $abandoned         = 0;
 $transferidas      = 0;
 $totaltransfers    = 0;
-$total_hangup      = 0;
 $total_calls       = 0;
 $total_calls2      = Array();
 $total_duration    = 0;
+$total_hold        = 0;
+$transfers         = Array();
+$timeout           = 0;
+$abandon_end_pos   = 0;
+$abandon_start_pos = 0;
+$total_hold_abandon= 0;
+$timeout_end_pos   = 0;
+$timeout_start_pos = 0;
+$total_hold_timeout= 0;
+$record            = Array();
+$total_hold2       = Array();
+$total_time2       = Array();
+$grandtotal_hold   = 0;
+$grandtotal_time   = 0;
+$grandtotal_calls  = 0;
 $total_calls_queue = Array();
 
 $res = $midb->consulta($query,array($start,$end));
 if($res) {
     while($row=$midb->fetch_row($res)) {
         if($row[3] <> "TRANSFER" && $row[3]<>"CONNECT") {
-            $total_hold     += $row[4];
-            $total_duration += $row[5];
+            $total_hold     += (int)$row[4];
+            $total_duration += (int)$row[5];
             $total_calls++;
-            $total_calls_queue["$row[1]"]++;
+            $total_calls_queue["$row[1]"] = ($total_calls_queue["$row[1]"] ?? 0) + 1;
         } elseif($row[3]=="TRANSFER") {
             $transferidas++;
         }
@@ -144,14 +159,14 @@ $total_duration_print = seconds2minutes($total_duration);
 $query = "SELECT ag.agent AS agent, qs.info1 AS info1,  qs.info2 AS info2 ";
 $query.= "FROM  queue_stats AS qs, qevent AS ac, qagent as ag, qname As q WHERE qs.qevent = ac.event_id ";
 $query.= "AND qs.qname = q.qname_id AND ag.agent_id = qs.qagent AND qs.datetime >= '%s' ";
-$query.= "AND qs.datetime <= '%s' AND  q.queue IN ($queue)  AND ag.agent in ($agent) AND  ac.event = 'TRANSFER'";
+$query.= "AND qs.datetime <= '%s' AND  q.queue IN ($queue_sql)  AND ag.agent in ($agent_sql) AND  ac.event = 'TRANSFER'";
 
 
 $res = $midb->consulta($query,array($start,$end));
 if($res) {
     while($row=$midb->fetch_row($res)) {
         $keytra = "$row[0]^$row[1]@$row[2]";
-        $transfers["$keytra"]++;
+        $transfers["$keytra"] = ($transfers["$keytra"] ?? 0) + 1;
         $totaltransfers++;
     }
 } else {
@@ -162,7 +177,7 @@ if($res) {
 $query = "SELECT  ac.event AS action,  qs.info1 AS info1,  qs.info2 AS info2,  qs.info3 AS info3 ";
 $query.= "FROM  queue_stats AS qs, qevent AS ac, qname As q, qagent as ag WHERE ";
 $query.= "qs.qevent = ac.event_id AND qs.qname = q.qname_id AND qs.datetime >= '%s' AND ";
-$query.= "qs.datetime <= '%s' AND  q.queue IN ($queue)  AND ag.agent in ($agent) AND  ac.event IN ('ABANDON', 'EXITWITHTIMEOUT', 'TRANSFER') ";
+$query.= "qs.datetime <= '%s' AND  q.queue IN ($queue_sql)  AND ag.agent in ($agent_sql) AND  ac.event IN ('ABANDON', 'EXITWITHTIMEOUT', 'TRANSFER') ";
 $query.= "ORDER BY  ac.event,  qs.info3";
 
 $res = $midb->consulta($query,array($start,$end));
@@ -171,15 +186,15 @@ while($row=$midb->fetch_row($res)) {
 
     if($row[0]=="ABANDON") {
         $abandoned++;
-        $abandon_end_pos+=$row[1];
-        $abandon_start_pos+=$row[2];
-        $total_hold_abandon+=$row[3];
+        $abandon_end_pos+=(int)$row[1];
+        $abandon_start_pos+=(int)$row[2];
+        $total_hold_abandon+=(int)$row[3];
     }
     if($row[0]=="EXITWITHTIMEOUT") {
         $timeout++;
-        $timeout_end_pos+=$row[1];
-        $timeout_start_pos+=$row[2];
-        $total_hold_timeout+=$row[3];
+        $timeout_end_pos+=(int)$row[1];
+        $timeout_start_pos+=(int)$row[2];
+        $total_hold_timeout+=(int)$row[3];
     }
 }
 
@@ -204,16 +219,16 @@ $query = "SELECT qs.datetime AS datetime, q.queue AS qname, ag.agent AS qagent, 
 $query.= "qs.info1 AS info1, qs.info2 AS info2, qs.info3 AS info3  FROM queue_stats AS qs, qname AS q, ";
 $query.= "qagent AS ag, qevent AS ac WHERE qs.qname = q.qname_id AND qs.qagent = ag.agent_id AND ";
 $query.= "qs.qevent = ac.event_id AND qs.datetime >= '%s' AND qs.datetime <= '%s' AND ";
-$query.= "q.queue IN ($queue) AND ag.agent in ($agent) AND ac.event IN ('COMPLETECALLER', 'COMPLETEAGENT') ORDER BY ag.agent";
+$query.= "q.queue IN ($queue_sql) AND ag.agent in ($agent_sql) AND ac.event IN ('COMPLETECALLER', 'COMPLETEAGENT') ORDER BY ag.agent";
 
 $res = $midb->consulta($query,array($start,$end));
 while($row=$midb->fetch_row($res)) {
-    $total_calls2["$row[2]"]++;
+    $total_calls2["$row[2]"] = ($total_calls2["$row[2]"] ?? 0) + 1;
     $record["$row[2]"][]=$row[0]."|".$row[1]."|".$row[3]."|".$row[4];
-    $total_hold2["$row[2]"]+=$row[4];
-    $total_time2["$row[2]"]+=$row[5];
-    $grandtotal_hold+=$row[4];
-    $grandtotal_time+=$row[5];
+    $total_hold2["$row[2]"] = ($total_hold2["$row[2]"] ?? 0) + (int)$row[4];
+    $total_time2["$row[2]"] = ($total_time2["$row[2]"] ?? 0) + (int)$row[5];
+    $grandtotal_hold+=(int)$row[4];
+    $grandtotal_time+=(int)$row[5];
     $grandtotal_calls++;
 }
 
@@ -324,7 +339,7 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
                 $query1 = "";
                 $query2 = "";
                 $data_pdf = array();
-                if($total_calls2>0) {
+                if(count($total_calls2)>0) {
                 foreach($total_calls2 as $agent=>$val) {
                     $contavar = $contador +1;
                     $cual = $contador % 2;
@@ -375,14 +390,14 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
                 ?>
             </tbody>
         </table>
-            <?php if($total_calls2>0) {
+            <?php if(count($total_calls2)>0) {
                 print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf);
                 }
             ?>
 
         <br/>    
             <?php
-            if($total_calls2>0) {
+            if(count($total_calls2)>0) {
                 echo "<table style='width: 99%; border-collapse: separate; border-spacing: 1px;'>\n";
                 echo "<thead>\n";
                 echo "<tr><td style='text-align:center; background-color: #fffdf3; width: 100%;'>\n";

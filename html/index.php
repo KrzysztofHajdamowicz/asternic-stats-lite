@@ -63,6 +63,9 @@ $end_month_ts -= 86400;
 
 $end_month = date('Y-m-d',$end_month_ts);
 
+$colas   = Array();
+$agentes = Array();
+
 $query = "SELECT queue FROM qname ORDER BY queue";
 $res = $midb->consulta($query);
 while ($row = $midb->fetch_row($res)) {

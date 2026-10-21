@@ -45,13 +45,12 @@ foreach($queue as $qn) {
                 if($aval=="not in use") {
                    $aval = "dialout";
                 }
-                if($channels[$inuse[$key]]['duration']=='') {
-                   $newkey = $channels[$inuse[$key]]['bridgedto'];
-                   $dur = $channels[$newkey]['duration_str'];
-                   $clid = $channels[$newkey]['callerid'];
+                $newkey = $channels[$inuse[$key]]['bridgedto'] ?? '';
+                if(($channels[$inuse[$key]]['duration'] ?? '')=='') {
+                   $dur = $channels[$newkey]['duration_str'] ?? '';
+                   $clid = $channels[$newkey]['callerid'] ?? '';
                 } else {
-                   $newkey = $channels[$inuse[$key]]['bridgedto'];
-                   $clid = $channels[$newkey]['callerid'];
+                   $clid = $channels[$newkey]['callerid'] ?? '';
                    $dur = $channels[$inuse[$key]]['duration_str'];
                 }
             }
@@ -88,9 +87,9 @@ foreach($queue as $qn) {
                 }
 
                 $aval2 = preg_replace("/ /","_",$aval);
-                $mystringaval = $lang[$language][$aval2];
+                $mystringaval = $lang[$language][$aval2] ?? '';
 				if($mystringaval=="") $mystringaval = $aval;
-                echo "<td><div style='float: left; background: ".$color[$aval]."; width: 1em;'>&nbsp;</div>&nbsp; $mystringaval";
+                echo "<td><div style='float: left; background: ".($color[$aval] ?? '#dadada')."; width: 1em;'>&nbsp;</div>&nbsp; $mystringaval";
                 echo "</td>";
                 echo "<td>$dur</td>";
                 echo "<td>$clid</td>";

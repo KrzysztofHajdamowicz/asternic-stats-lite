@@ -27,7 +27,7 @@ function get_queue_numbers($qn) {
     $llamadas = 0;
     $llamadas = $queues[$qn]['ncalls'];
     if(isset($queues[$qn]['calls'])) {
-        $maxwait = $queues[$qn]['calls'][0]['chaninfo']['duration_str'];
+        $maxwait = $queues[$qn]['calls'][0]['chaninfo']['duration_str'] ?? 0;
     } else {
         $maxwait = 0;
     }
@@ -73,8 +73,8 @@ function get_queue_numbers($qn) {
 function get_channels($am) {
 
     $res=$am->Command('core show version');
-    preg_match('/Asterisk (\d\.?\d)/', $res['data'], $arr);
-    $version=$arr[1];
+    preg_match('/Asterisk (\d\.?\d)/', $res['data'] ?? '', $arr);
+    $version=$arr[1] ?? '';
     if(!preg_match("/\./",$version)) {
         $version = "1.".$version;
     }
@@ -82,7 +82,7 @@ function get_channels($am) {
     $version = intval($version);
 
     $res=$am->Command("core show channels concise");
-    $res=$res['data'];
+    $res=$res['data'] ?? '';
     $responselines=preg_split("/\n/",$res);
     $lines=array();
 
@@ -99,6 +99,7 @@ function get_channels($am) {
         $chan=preg_split("/!/",$l);
         if (count($chan)==1)
             $chan=preg_split("/:/",$l);
+        $chan=array_pad($chan,13,'');
         $ci=array();
         $ci['channel']=$chan[0];
         $ci['context']=$chan[1];
@@ -113,7 +114,7 @@ function get_channels($am) {
         $ci['duration']=$chan[($version >= 18 ? 11 : 10)];
         $ci['bridgedto']=$chan[($version >= 18 ? 12 : 11)];
 
-        $dur=$ci['duration']+0;
+        $dur=(int)$ci['duration'];
         $durstr=sprintf("%d:%02d",$dur/60,$dur%60);
         $ci['duration_str']=$durstr;
 
@@ -126,7 +127,8 @@ function get_channels($am) {
 
 function get_queues($am,$channels) {
     $res=$am->Command("queue show");
-    $res=$res['data']; 
+    $res=$res['data'] ?? '';
+    $queuelist=array();
     $lines=preg_split("/\n/",$res);
 
     $queue=null;
@@ -207,7 +209,7 @@ function get_queues($am,$channels) {
         if ($reading=="callers" && preg_match("/^\s+\d+\.\s+(\S+)\s+\(wait:\s*([\d:]+),\s*prio:\s*(\d+)/",$l,$matches)) {
             $callinfo=array();
             $callinfo['channel']=$matches[1];
-            $callinfo['chaninfo']=$channels[$matches[1]];
+            $callinfo['chaninfo']=$channels[$matches[1]] ?? array();
             $callinfo['waittime']=$matches[2];
             $callinfo['prio']=$matches[3];
             $data['calls'][]=$callinfo;
@@ -226,11 +228,11 @@ function convertlocal($agent) {
 }
 
 function agent_name($channel) {
-    list ($nada,$number) = preg_split("/\//",$channel,2);
+    list ($nada,$number) = array_pad(preg_split("/\//",$channel,2),2,'');
 	if(is_file("agents.txt")) {
         $lineas = file("agents.txt");
         foreach ($lineas as $linea_num => $linea) {
-            list ($num,$nombre) = preg_split("/,/",$linea,2);
+            list ($num,$nombre) = array_pad(preg_split("/,/",$linea,2),2,'');
             if($num==$number) {
                 return "$num - $nombre";
             }

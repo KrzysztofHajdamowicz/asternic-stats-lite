@@ -25,6 +25,7 @@ $time = $time[1] + $time[0];
 $begintime = $time;
 $inuse      = Array();
 $dict_queue = Array();
+$queue      = Array();
 
 require("config.php");
 require("asmanager.php");
@@ -42,12 +43,15 @@ if(isset($_SESSION['QSTATS']['filter'])) {
 
 
 $am=new AsteriskManager();
-$am->connect($manager_host,$manager_user,$manager_secret);
+if(!$am->connect($manager_host,$manager_user,$manager_secret)) {
+    echo "<p>Unable to connect to the Asterisk Manager Interface at ".htmlspecialchars($manager_host).". Check the AMI settings in config.php.</p>";
+    exit;
+}
 
 $channels = get_channels ($am);
 //echo "<pre>";print_r($channels);echo "</pre>";
 foreach($channels as $ch=>$chv) {
-  list($chan,$ses) = explode("-",$ch,2);
+  list($chan,$ses) = array_pad(explode("-",$ch,2),2,'');
   $inuse["$chan"]=$ch;
 }
 
