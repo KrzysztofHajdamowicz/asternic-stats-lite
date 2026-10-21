@@ -44,8 +44,15 @@ services:
       MARIADB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
     volumes:
       - db:/var/lib/mysql
-      # Runs once, when the volume is empty.
-      - ./sql/qstats.sql:/docker-entrypoint-initdb.d/qstats.sql:ro
+      # Runs once, when the volume is empty. Needs the repository checkout
+      # (sql/qstats.sql next to this file); without it compose stops with
+      # an error instead of mounting an empty directory created on the host.
+      - type: bind
+        source: ./sql/qstats.sql
+        target: /docker-entrypoint-initdb.d/qstats.sql
+        read_only: true
+        bind:
+          create_host_path: false
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
