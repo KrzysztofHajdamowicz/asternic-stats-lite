@@ -104,7 +104,8 @@ runs:
         registry-username: ${{ github.actor }}
         registry-password: ${{ github.token }}
 
-    - uses: actions/attest-build-provenance@v4
+    # SLSA build provenance (no sbom-path / predicate given).
+    - uses: actions/attest@v4
       if: github.event_name != 'pull_request'
       with:
         subject-name: ${{ steps.image.outputs.ref }}
@@ -113,10 +114,11 @@ runs:
         # Storage records need an organization; this repository is a user's.
         create-storage-record: false
 
-    - uses: actions/attest-sbom@v4
+    - uses: actions/attest@v4
       if: github.event_name != 'pull_request'
       with:
         subject-name: ${{ steps.image.outputs.ref }}
         subject-digest: ${{ steps.build.outputs.digest }}
         sbom-path: ${{ runner.temp }}/${{ inputs.name }}.spdx.json
         push-to-registry: true
+        create-storage-record: false
