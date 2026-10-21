@@ -112,6 +112,13 @@ Add the following line:
 0 * * * * php -q /usr/local/parseloglite/parselog.php convertlocal
 ```
 
+### Alternative: parselogd
+
+[`parselogd`](parselogd/README.md) is a replacement for `parselog.php` written
+in Go. It runs as a daemon, follows `queue_log` like `tail -F` (new calls show
+up within a second), handles log rotation and resumes where it stopped. It is
+published as a container image, `ghcr.io/krzysztofhajdamowicz/asternic-parselogd`.
+
 ## Accessing Reports
 
 Access your call center statistics by navigating to:

@@ -70,3 +70,17 @@ CREATE TABLE queue_stats (
   UNIQUE KEY unico (uniqueid,datetime,qname,qagent,qevent)
 );
 
+--
+-- Read position of parselogd (the Go log importer). parselogd creates this
+-- table itself when the database user is allowed to.
+--
+
+CREATE TABLE IF NOT EXISTS parselog_state (
+  id tinyint unsigned NOT NULL,
+  inode bigint unsigned NOT NULL,
+  file_offset bigint NOT NULL,
+  head_len int NOT NULL,
+  head_sum char(64) NOT NULL,
+  updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
