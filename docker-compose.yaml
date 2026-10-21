@@ -25,6 +25,8 @@ services:
       manager_host: ${AMI_HOST:-host.docker.internal}
       manager_user: ${AMI_USER:-qstats}
       manager_pass: ${AMI_PASSWORD:-}
+      # en, es, de, fr, ru, pt_BR
+      language: ${REPORT_LANGUAGE:-en}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

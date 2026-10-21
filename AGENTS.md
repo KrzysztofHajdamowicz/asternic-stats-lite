@@ -17,7 +17,7 @@ from Asterisk `queue_log` by `parselogd/` (Go, preferred) or `parselog/`
 | `html/dblib.php` | mysqli wrapper (`$midb`); vendored, large, rarely needs changes |
 | `html/export.php`, `fpdf.php`, `font/` | CSV/PDF export; FPDF 1.9 vendored, do not edit |
 | `html/header.php`, `footer.php`, `menu.php` | page shell |
-| `html/config.php` | DB/AMI credentials, `$language` |
+| `html/config.php` | DB/AMI credentials, `$language` (manual installs; images use `docker/web/config.php` with `getenv()`) |
 | `html/lang/*.php` | UI strings (`$lang[...]`); add new keys to all files, `en.php` first |
 | `html/css/app.css` | the only stylesheet; colours = CSS custom properties, dark mode via `prefers-color-scheme` |
 | `html/js/` | `charts.js` (renders `<canvas data-chart>`), `index.js`, `realtime.js`, `sortable.js` |
@@ -26,8 +26,10 @@ from Asterisk `queue_log` by `parselogd/` (Go, preferred) or `parselog/`
 | `parselogd/` | Go importer; own `go.mod`, `README.md`, `Dockerfile`; `internal/{queuelog,tail,store,testdb}` |
 | `parselogd/testdata/` | sample `queue_log` (21 Oct 2024) and expected `queue_stats.golden` |
 | `sql/qstats.sql` | schema (creates DB `qstatslite`); tables `qname`, `qagent`, `qevent`, `queue_stats`, `parselog_state` |
+| `docker/web/`, `docker/parselog/` | Dockerfiles + config of the PHP images (build context = repo root, `.dockerignore`) |
+| `docker/sbom/` | SBOM manifests for vendored Chart.js/FPDF; CI fails if they do not match |
 | `docker-compose.yaml`, `.env.example` | quick start: web + MariaDB + parselogd from GHCR |
-| `.github/workflows/` | CI + image builds (GHCR, SBOM, attestations); `dependabot.yml` |
+| `.github/workflows/` | `images.yml` (web, parselog), `parselogd.yml`; `.github/actions/publish-image` (GHCR, SBOM, attestations); `dependabot.yml` |
 
 Data flow: `queue_log` line → `queue_stats` row (`qname`/`qagent` are lookup
 ids, `qevent` is a fixed event list) → report SQL in each `html/*.php`.
@@ -46,6 +48,9 @@ ids, `qevent` is a fixed event list) → report SQL in each `html/*.php`.
   Keep the original Nicolás Gudiño headers in existing files.
 - Schema changes go to `sql/qstats.sql` and must be additive (`CREATE TABLE IF
   NOT EXISTS`); `parselog.php` and `parselogd` write the same tables.
+- Upgrading vendored Chart.js or FPDF: update the matching file in `docker/sbom/`.
+- New env var for an image: document it in `README.md` (and `.env.example`
+  if the quick start uses it).
 - Keep `README.md` in sync when behaviour, env vars or images change.
 - Commits: imperative subject, body explains why. One topic per PR.
 

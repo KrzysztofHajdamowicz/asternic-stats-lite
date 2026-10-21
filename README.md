@@ -83,23 +83,25 @@ All settings are in `.env` (see `.env.example`):
 | `ASTERISK_LOG_DIR` | `/var/log/asterisk` | host directory containing `queue_log` |
 | `CONVERT_LOCAL` | `true` | store `Local/101@context` agents as `Agent/101` |
 | `TZ` | UTC | time zone of the reports, e.g. `Europe/Warsaw`; changing it on an existing database shifts new events against the old ones |
+| `REPORT_LANGUAGE` | `en` | report language: `en`, `es`, `de`, `fr`, `ru`, `pt_BR` |
 
 The containers themselves read these variables:
 
 - web image: `dbhost`, `dbname`, `dbuser`, `dbpass`, `manager_host`,
-  `manager_user`, `manager_pass`
+  `manager_user`, `manager_pass`, `language` (the image replaces
+  `html/config.php` with `docker/web/config.php`, which reads them; mounting
+  your own `config.php` still works)
 - `parselogd`: the same `db*` variables (or `PARSELOG_DSN`), `QUEUE_LOG`,
   `CONVERT_LOCAL`, `TZ` and a few more, see
   [parselogd/README.md](parselogd/README.md#configuration)
-- `parselog` image: the same `db*` variables; it runs `parselog.php
-  convertlocal` from cron every 5 minutes
+- `parselog` image: the same `db*` variables, `PARSELOG_SCHEDULE` (cron
+  spec, default `*/5 * * * *`), `CONVERT_LOCAL` (default `true`),
+  `QUEUE_LOG_DIR` (default `/var/log/asterisk`), `QUEUE_LOG_FILE` (default
+  `queue_log`)
 
 The AMI user needs `read = agent,call` (or `all`) in `manager.conf`. If AMI
 listens on `127.0.0.1` only, the container cannot reach it; let it listen on
 the Docker bridge address too, or leave the realtime tab unused.
-
-The report language is set in `html/config.php` (`$language`: `en`, `es`,
-`de`, `fr`, `ru`, `pt_BR`).
 
 ### Moving from parselog.php
 
@@ -110,42 +112,55 @@ against the same database. It continues from the newest event already in
 ## Container images
 
 The images are built by GitHub Actions in this repository and published to
-the GitHub Container Registry for `linux/amd64` and `linux/arm64`:
+the GitHub Container Registry for `linux/amd64` and `linux/arm64`. Tags:
+`latest` (master), `X.Y.Z`, `X.Y`, `X` (git tags `vX.Y.Z`) and `sha-<commit>`.
 
-| Image | Base | Tags |
-|---|---|---|
-| `ghcr.io/krzysztofhajdamowicz/asternic-web` | `php:8.5-apache` | `latest` (master), `X.Y.Z`, `X.Y`, `X` (tags `vX.Y.Z`) |
-| `ghcr.io/krzysztofhajdamowicz/asternic-parselog` | `php:8.5-cli` | same |
-| `ghcr.io/krzysztofhajdamowicz/asternic-parselogd` | distroless static | same |
+| Image | Dockerfile | Base | Workflow |
+|---|---|---|---|
+| `ghcr.io/krzysztofhajdamowicz/asternic-web` | `docker/web/Dockerfile` | `php:8.5-apache` | `images.yml` |
+| `ghcr.io/krzysztofhajdamowicz/asternic-parselog` | `docker/parselog/Dockerfile` | `php:8.5-cli` | `images.yml` |
+| `ghcr.io/krzysztofhajdamowicz/asternic-parselogd` | `parselogd/Dockerfile` | distroless static | `parselogd.yml` |
 
-**Fresh packages.** Every build pulls the newest base image and installs the
-current operating system packages, so a rebuild picks up security fixes
-without a code change. The images are rebuilt on every push to `master`, on
-version tags and once a week on a schedule.
+The PHP images are built from the repository root (see `.dockerignore`).
+The web image also enables the real client IP behind Cloudflare
+(`CF-Connecting-IP`) and some PHP hardening (`expose_php`, `file_uploads`
+off, strict session mode).
+
+**Fresh packages.** The PHP images are always built with `--pull --no-cache`
+and `apt-get upgrade`, so every build gets the newest base image and
+operating system packages and a rebuild picks up security fixes without a
+code change. The images are rebuilt on every push to `master`, on version
+tags and once a week (Monday morning UTC).
 
 **Urgent rebuild.** When an important vulnerability is fixed upstream (for
 example a PHP release), rebuild without waiting for the schedule:
 Actions → the image's workflow → *Run workflow*, or
 
 ```sh
-gh workflow run <workflow file> -R KrzysztofHajdamowicz/asternic-stats-lite
+gh workflow run images.yml -R KrzysztofHajdamowicz/asternic-stats-lite      # web + parselog
+gh workflow run parselogd.yml -R KrzysztofHajdamowicz/asternic-stats-lite   # parselogd
 ```
 
 Then `docker compose pull && docker compose up -d` on the server.
 
-**Supply chain.** Every image has a build provenance attestation and an SBOM
-covering both the operating system packages and the application
-dependencies (Go modules, vendored JavaScript). To verify an image:
+**Supply chain.** Every image has a GitHub build provenance attestation and
+an SBOM attestation, plus BuildKit provenance (`mode=max`) and SBOM stored in
+the registry. The SBOM covers the operating system (Debian) packages, PHP, Go
+modules and the vendored Chart.js and FPDF (described in `docker/sbom/`; CI
+checks that these files match the vendored code). To verify:
 
 ```sh
 gh attestation verify oci://ghcr.io/krzysztofhajdamowicz/asternic-web:latest \
-  -R KrzysztofHajdamowicz/asternic-stats-lite
+  --owner KrzysztofHajdamowicz
+gh attestation verify oci://ghcr.io/krzysztofhajdamowicz/asternic-web:latest \
+  --owner KrzysztofHajdamowicz --predicate-type https://spdx.dev/Document/v2.3
 docker buildx imagetools inspect ghcr.io/krzysztofhajdamowicz/asternic-web:latest \
   --format '{{ json .SBOM }}'
 ```
 
-**Dependabot** opens weekly pull requests for the base images, Go modules and
-GitHub Actions. Patch and minor updates are merged automatically once CI is
+**Dependabot** opens weekly pull requests for the base images
+(`docker/web`, `docker/parselog`, `parselogd`), Go modules and GitHub
+Actions. Patch and minor updates are merged automatically once CI is
 green.
 
 ## Manual installation (without Docker)
@@ -163,7 +178,8 @@ Issabel.
    ```
 
 2. Copy `html/` to the web root, e.g. `/var/www/html/queue-stats`, and set
-   the database and AMI credentials and the language in its `config.php`.
+   the database and AMI credentials and the language (`$language`) in its
+   `config.php`.
 
 3. Import `queue_log`, either
    - with `parselogd` (build it with `go build` in `parselogd/`, or use the
