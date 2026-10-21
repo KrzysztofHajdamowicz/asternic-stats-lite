@@ -50,6 +50,11 @@ cp .env.example .env        # set DB_PASSWORD, and AMI_* for the realtime tab
 docker compose up -d
 ```
 
+Run `docker compose` from the repository checkout: the `db` service loads
+`sql/qstats.sql` from it on the first start. If you copy only
+`docker-compose.yaml` somewhere else, copy `sql/qstats.sql` next to it (same
+relative path); without it compose stops with `bind source path does not exist`.
+
 Open <http://127.0.0.1:8080/> (from another machine: `ssh -L 8080:127.0.0.1:8080 your-pbx`).
 
 `docker-compose.yaml` starts three services:
@@ -240,3 +245,7 @@ agents making changes.
   `cap_add: [DAC_READ_SEARCH]` for `parselogd`, or make the file readable.
 - Realtime tab shows an error: check the AMI settings and that AMI is
   reachable from the container.
+- `Can't read from a directory 'stdin'` in the db log (compose files from
+  before this check): `sql/qstats.sql` was missing when the stack first
+  started. Run from the checkout, then `docker compose down -v` (removes the
+  half-initialised database volume) and start again.
