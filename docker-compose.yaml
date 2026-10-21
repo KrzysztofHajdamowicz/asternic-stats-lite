@@ -1,0 +1,81 @@
+# Quick start: web application + MariaDB + parselogd.
+#
+#   cp .env.example .env    # set DB_PASSWORD (and AMI_* for the realtime tab)
+#   docker compose up -d
+#   open http://127.0.0.1:8080/
+#
+# Asterisk must run on the same host: parselogd reads /var/log/asterisk/queue_log.
+# See README.md ("Quick start") for details.
+
+services:
+  web:
+    image: ghcr.io/krzysztofhajdamowicz/asternic-web:latest
+    restart: unless-stopped
+    # The application has no login of its own. By default it is reachable
+    # only from this host; put it behind a reverse proxy with authentication
+    # before changing this to "8080:80".
+    ports:
+      - "${WEB_PORT:-127.0.0.1:8080}:80"
+    environment:
+      dbhost: db
+      dbname: qstatslite
+      dbuser: qstatslite
+      dbpass: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      # Asterisk Manager Interface, used only by the realtime tab.
+      manager_host: ${AMI_HOST:-host.docker.internal}
+      manager_user: ${AMI_USER:-qstats}
+      manager_pass: ${AMI_PASSWORD:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:lts
+    restart: unless-stopped
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+      # The schema creates a database named qstatslite; keep the name.
+      MARIADB_DATABASE: qstatslite
+      MARIADB_USER: qstatslite
+      MARIADB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    volumes:
+      - db:/var/lib/mysql
+      # Runs once, when the volume is empty.
+      - ./sql/qstats.sql:/docker-entrypoint-initdb.d/qstats.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Follows queue_log and writes new events to the database within a second.
+  # Replaces parselog.php run from cron (see parselogd/README.md).
+  parselogd:
+    image: ghcr.io/krzysztofhajdamowicz/asternic-parselogd:latest
+    restart: unless-stopped
+    environment:
+      dbhost: db
+      dbname: qstatslite
+      dbuser: qstatslite
+      dbpass: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      # Store Local/101@context agents as Agent/101.
+      CONVERT_LOCAL: ${CONVERT_LOCAL:-true}
+      # Time zone of the reports; unset means UTC.
+      TZ: ${TZ:-}
+    volumes:
+      # The directory, not the file, so that log rotation is visible.
+      - ${ASTERISK_LOG_DIR:-/var/log/asterisk}:/var/log/asterisk:ro
+    # queue_log is usually owned by asterisk with mode 0640: run as root
+    # with no capability except reading any file.
+    user: "0:0"
+    cap_drop: [ALL]
+    cap_add: [DAC_READ_SEARCH]
+    read_only: true
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db:
