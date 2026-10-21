@@ -1,0 +1,61 @@
+name: images
+
+# Web interface (PHP + Apache) and the original PHP parselog. Both images are
+# built from the checked-out source with --pull --no-cache, so every build,
+# including the weekly one and a manual run, picks up the newest PHP 8.5 patch
+# release and Debian security updates. After a PHP or Debian security fix:
+#   gh workflow run images.yml --repo KrzysztofHajdamowicz/asternic-stats-lite
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+    paths: &paths
+      - html/**
+      - parselog/**
+      - docker/**
+      - .dockerignore
+      - .github/actions/publish-image/**
+      - .github/workflows/images.yml
+  pull_request:
+    paths: *paths
+  schedule:
+    - cron: "47 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vendored:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker/sbom/check.sh
+
+  build:
+    name: ${{ matrix.name }}
+    needs: vendored
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: asternic-web
+            file: docker/web/Dockerfile
+            description: Asternic Call Center Stats Lite web interface (PHP 8.5, Apache)
+          - name: asternic-parselog
+            file: docker/parselog/Dockerfile
+            description: Original PHP parselog for Asternic Call Center Stats Lite, run from cron
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/publish-image
+        with:
+          name: ${{ matrix.name }}
+          description: ${{ matrix.description }}
+          file: ${{ matrix.file }}
+          no-cache: "true"

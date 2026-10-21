@@ -1,0 +1,22 @@
+{
+    "packages": [
+        {
+            "name": "setasign/fpdf",
+            "version": "1.9.0",
+            "version_normalized": "1.9.0.0",
+            "type": "library",
+            "description": "FPDF, vendored as html/fpdf.php and html/font/",
+            "homepage": "http://www.fpdf.org",
+            "license": [
+                "MIT"
+            ],
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Setasign/FPDF.git",
+                "reference": "1.9"
+            }
+        }
+    ],
+    "dev": false,
+    "dev-package-names": []
+}

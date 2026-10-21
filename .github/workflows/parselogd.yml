@@ -8,7 +8,8 @@ on:
   schedule:
     # Weekly rebuild picks up base image updates, and publishes dependency
     # updates merged by Dependabot auto-merge (merges made with GITHUB_TOKEN
-    # do not trigger push workflows).
+    # do not trigger push workflows). Manual run after a security fix:
+    #   gh workflow run parselogd.yml
     - cron: "17 4 * * 1"
   workflow_dispatch:
 
@@ -62,37 +63,14 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
-        if: github.event_name != 'pull_request'
+      - uses: ./.github/actions/publish-image
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/asternic-parselogd
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
-            type=ref,event=pr
-          labels: |
-            org.opencontainers.image.title=asternic-parselogd
-            org.opencontainers.image.description=Imports the Asterisk queue_log into the Asternic Call Center Stats Lite database
-      - uses: docker/build-push-action@v7
-        with:
+          name: asternic-parselogd
+          description: Imports the Asterisk queue_log into the Asternic Call Center Stats Lite database
           context: parselogd
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            VERSION=${{ steps.meta.outputs.version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Scheduled and manual runs rebuild from scratch (fresh base image).
+          no-cache: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
