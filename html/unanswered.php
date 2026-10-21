@@ -50,12 +50,15 @@ $query = "SELECT qs.datetime AS datetime, q.queue AS qname, ag.agent AS qagent, 
 $query.= "qs.info1 AS info1, qs.info2 AS info2,  qs.info3 AS info3 FROM queue_stats AS qs, qname AS q, ";
 $query.= "qagent AS ag, qevent AS ac WHERE qs.qname = q.qname_id AND qs.qagent = ag.agent_id AND ";
 $query.= "qs.qevent = ac.event_id AND qs.datetime >= '%s' AND qs.datetime <= '%s' ";
-$query.= "AND q.queue IN ($queue) AND ac.event IN ('ABANDON', 'EXITWITHTIMEOUT') ORDER BY qs.datetime";
+$query.= "AND q.queue IN ($queue_sql) AND ac.event IN ('ABANDON', 'EXITWITHTIMEOUT') ORDER BY qs.datetime";
 $res = $midb->consulta($query,array($start,$end));
 
 $abandon_calls_queue = Array();
-$abandon=0;
+$abandoned=0;
 $timeout=0;
+$abandon_end_pos=0;
+$abandon_start_pos=0;
+$total_hold_abandon=0;
 
 if($midb->num_rows($res)>0) {
 
@@ -63,14 +66,14 @@ while($row=$midb->fetch_row($res)) {
 
     if($row[3]=="ABANDON") {
         $abandoned++;
-        $abandon_end_pos+=$row[4];
-        $abandon_start_pos+=$row[5];
-        $total_hold_abandon+=$row[6];
+        $abandon_end_pos+=(int)$row[4];
+        $abandon_start_pos+=(int)$row[5];
+        $total_hold_abandon+=(int)$row[6];
     }
     if($row[3]=="EXITWITHTIMEOUT") {
          $timeout++;
     }
-    $abandon_calls_queue["$row[1]"]++;
+    $abandon_calls_queue["$row[1]"] = ($abandon_calls_queue["$row[1]"] ?? 0) + 1;
 }
 
 if($abandoned > 0) {

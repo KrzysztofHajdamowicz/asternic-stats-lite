@@ -80,6 +80,9 @@ if(isset($_SESSION['QSTATS']['agent'])) {
    $agent = $_SESSION['QSTATS']['agent'];
 }
 
+$queue_sql = sql_in_list($queue);
+$agent_sql = sql_in_list($agent);
+
 $fstart_year  = substr($start,0,4);
 $fstart_month = substr($start,5,2);
 $fstart_day = substr($start,8,2);

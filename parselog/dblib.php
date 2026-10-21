@@ -68,14 +68,18 @@ class dbcon {
                 $this->host=$partes[0];
                 $port = $partes[1];
             }
-            $link = new mysqli($this->host, $this->usuario, $this->clave, $this->dbname, $port);
+            // PHP 8.1+ makes mysqli throw exceptions by default; keep the
+            // classic "return false on error" behaviour this class relies on.
+            mysqli_report(MYSQLI_REPORT_OFF);
+            $link = new mysqli($this->host, $this->usuario, $this->clave, $this->dbname, (int)$port);
 
-            if (!$link) {
+            if ($link->connect_errno) {
                 $this->link  = false;
                 $this->debug = true;
                 $this->echodebug('Could not connect to MySQL. Be sure you have created the '.$this->dbname.' database and Check MySQL login credentials in config.php','alert-error');
-                trigger_error('Could not connect to MySQL', E_USER_ERROR);
-                die();
+                // E_USER_ERROR in trigger_error() is deprecated as of PHP 8.4
+                error_log('Could not connect to MySQL: '.$link->connect_error);
+                die('Could not connect to MySQL');
 
             } else {
                 if($force_utf8==true) {
@@ -115,7 +119,7 @@ class dbcon {
 
             if ($result == false) {
                 if($this->debug) {
-	            trigger_error('SQL Error:<br/><br/>"' . $this->error() . '"'. "\n$query\n", E_USER_ERROR);
+	            trigger_error('SQL Error:<br/><br/>"' . $this->error() . '"'. "\n$query\n", E_USER_WARNING);
                 }
             } else if($this->debug) {
                 $this->echodebug($query);
@@ -148,7 +152,7 @@ class dbcon {
         $where = ($where) ? " WHERE " . $where : '';
         $limit = ($limit) ? " LIMIT " . $limit : '';
 
-        if ($this->consulta("UPDATE `" . $table . "` SET " . implode($fields, ", ") . $where . $limit)) {
+        if ($this->consulta("UPDATE `" . $table . "` SET " . implode(", ", $fields) . $where . $limit)) {
             return true;
         } else {
             return false;
@@ -171,7 +175,7 @@ class dbcon {
             $values[$field] = $this->escape_string($val);
         }
 
-        if ($this->consulta("INSERT INTO `" . $table . "`(`" . implode(array_keys($values), "`, `") . "`) VALUES ('" . implode($values, "', '") . "')")) {
+        if ($this->consulta("INSERT INTO `" . $table . "`(`" . implode("`, `", array_keys($values)) . "`) VALUES ('" . implode("', '", $values) . "')")) {
             return true;
         } else {
             return false;
@@ -190,7 +194,7 @@ class dbcon {
     public function select($fields, $table, $joins = false, $where = false, $orderby = false, $limit = false) {
 
         if (is_array($fields)) {
-            $fields = "`" . implode($fields, "`, `") . "`";
+            $fields = "`" . implode("`, `", $fields) . "`";
         }
 
         $orderby = ($orderby) ? " ORDER BY " . $orderby : '';
@@ -222,7 +226,7 @@ class dbcon {
      */
     public function select_one($fields, $table, $joins = false, $where = false, $orderby = false) {
         $result = $this->select($fields, $table, $joins, $where, $orderby, '1');
-        return $result[0];
+        return is_array($result) ? $result[0] : false;
     }
     /**
      * Selects one value from one row
@@ -235,7 +239,7 @@ class dbcon {
      */
     public function select_one_value($field, $table, $joins = false, $where = false, $orderby = false) {
         $result = $this->select_one($field, $table, $joins, $where, $orderby);
-        return $result[$field];
+        return is_array($result) ? $result[$field] : false;
     }
 
     /**
@@ -267,9 +271,10 @@ class dbcon {
         if($this->engine=='sqlite') {
             return $res->fetch(PDO::FETCH_ASSOC);
         } else {
-            if(gettype($res)=='object') {
+            if($res instanceof mysqli_result) {
                 return mysqli_fetch_assoc($res);
             }
+            return null;
         }
     }
 
@@ -278,9 +283,10 @@ class dbcon {
         if($this->engine=='sqlite') {
             return $res->fetch(PDO::FETCH_ASSOC);
         } else {
-            if(gettype($res)=='object') {
+            if($res instanceof mysqli_result) {
                 return mysqli_fetch_assoc($res);
             }
+            return null;
         }
     }
 
@@ -294,6 +300,7 @@ class dbcon {
     public function fetch_row($res) {
         //$this->res_type($query);
         if(!isset($res)) { $res = $this->result; }
+        if(!($res instanceof mysqli_result)) { return null; }
         return mysqli_fetch_row($res);
     }
 
@@ -305,8 +312,8 @@ class dbcon {
      */
     public function fetch_one($res = false) {
         if(!isset($res)) { $res = $this->result; }
-        list($result) = $this->fetch_row($res);
-        return $result;
+        $row = $this->fetch_row($res);
+        return is_array($row) ? $row[0] : null;
     }
 
     /**
@@ -316,7 +323,7 @@ class dbcon {
      * @param int $offset Field offset
      * @return string Field name
      */
-    public function field_name($res = false, $offset) {
+    public function field_name($res, $offset) {
         if(!isset($res)) { $res = $this->result; }
         return mysqli_fetch_field_direct($res, $offset)->name;
     }
@@ -341,7 +348,10 @@ class dbcon {
      * @return boolean
      */
     public function free_result() {
-        return mysqli_free_result($this->result);
+        if($this->result instanceof mysqli_result) {
+            mysqli_free_result($this->result);
+        }
+        return true;
     }
 
     /**
@@ -352,9 +362,9 @@ class dbcon {
      */
     public function escape_string($str) {
         if($this->engine=='sqlite') {
-            return $this->link->quote($str);
+            return $this->link->quote((string)$str);
         } else {
-            return mysqli_real_escape_string($this->link, $str);
+            return mysqli_real_escape_string($this->link, (string)$str);
         }
     }
 
@@ -426,6 +436,9 @@ class dbcon {
      */
     public function num_rows($result = false) {
         $res = ($result!==false)?$result:$this->result;
+        if(!($res instanceof mysqli_result)) {
+            return 0;
+        }
         return (int) mysqli_num_rows($res);
     }
 
@@ -485,7 +498,7 @@ class dbcon {
         if($this->engine=='sqlite') {
             return;
         } else {
-            return mysqli_close($this->link);
+            return ($this->link instanceof mysqli) ? mysqli_close($this->link) : false;
         }
     }
 
@@ -548,10 +561,14 @@ class dbcon {
         }
 
         if (php_sapi_name() !='cli') { 
-            if($type=='alert-success') {
+            // j()/je() are debug helpers that are not shipped with the lite
+            // version; fall back to the PHP error log instead of a fatal error.
+            if($type=='alert-success' && function_exists('j')) {
                  j("DB: ".$ret);
-            } else {
+            } else if(function_exists('je')) {
                  je("DB: ".$ret);
+            } else {
+                 error_log("DB: ".$ret);
             }
             //echo "</div>"; 
         } else { echo "$ret\n"; }
@@ -561,18 +578,8 @@ class dbcon {
         if (! preg_match("/[\200-\237]/", $string) and ! preg_match("/[\241-\377]/", $string))
             return $string;
 
-        if(PHP_VERSION_ID > 50399) {
-            $string = preg_replace_callback("/([\340-\357])([\200-\277])([\200-\277])/", array($this, "cback_utf"), $string);
-            $string = preg_replace_callback("/([\300-\337])([\200-\277])/", array($this, "cback_utf2"), $string);
-        } else {
-            $string = preg_replace("/([\340-\357])([\200-\277])([\200-\277])/e",
-            "'&#'.((ord('\\1')-224)*4096 + (ord('\\2')-128)*64 + (ord('\\3')-128)).';'",
-            $string);
-
-            $string = preg_replace("/([\300-\337])([\200-\277])/e",
-            "'&#'.((ord('\\1')-192)*64+(ord('\\2')-128)).';'",
-            $string);
-        }
+        $string = preg_replace_callback("/([\340-\357])([\200-\277])([\200-\277])/", array($this, "cback_utf"), $string);
+        $string = preg_replace_callback("/([\300-\337])([\200-\277])/", array($this, "cback_utf2"), $string);
 
         return $string;
     }

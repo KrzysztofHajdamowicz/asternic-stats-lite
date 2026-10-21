@@ -60,6 +60,7 @@ if($midb->num_rows($res)>0) {
 //$last_event_ts = 0;
 
 // Populates an array with the EVENTS ids
+$event_array = array();
 $query = "SELECT * FROM qevent ORDER BY event_id";
 $res = $midb->consulta($query);
 while($row = $midb->fetch_row($res)) {

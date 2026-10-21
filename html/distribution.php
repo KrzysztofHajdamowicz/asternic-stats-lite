@@ -52,12 +52,17 @@ $query = "SELECT qs.datetime AS datetime, q.queue AS qname, ag.agent AS qagent, 
 $query.= "qs.info1 AS info1, qs.info2 AS info2,  qs.info3 AS info3 FROM queue_stats AS qs, qname AS q, ";
 $query.= "qagent AS ag, qevent AS ac WHERE qs.qname = q.qname_id AND qs.qagent = ag.agent_id AND ";
 $query.= "qs.qevent = ac.event_id AND qs.datetime >= '%s' AND qs.datetime <= '%s' ";
-$query.= "AND q.queue IN ($queue,'NONE') AND ac.event IN ('ABANDON', 'EXITWITHTIMEOUT','COMPLETECALLER','COMPLETEAGENT','AGENTLOGIN','AGENTLOGOFF','AGENTCALLBACKLOGIN','AGENTCALLBACKLOGOFF') ";
+$query.= "AND q.queue IN ($queue_sql,'NONE') AND ac.event IN ('ABANDON', 'EXITWITHTIMEOUT','COMPLETECALLER','COMPLETEAGENT','AGENTLOGIN','AGENTLOGOFF','AGENTCALLBACKLOGIN','AGENTCALLBACKLOGOFF') ";
 $query.= "ORDER BY qs.datetime";
 
 $query_comb     = "";
 $login          = 0;
 $logoff         = 0;
+$answered       = 0;
+$unanswered     = 0;
+$total_calls    = 0;
+$horas          = Array();
+$data_pdf       = Array();
 $dias           = Array();
 $logout_by_day  = Array();
 $logout_by_hour = Array();
@@ -82,36 +87,36 @@ if($midb->num_rows($res)>0) {
 
         if($row[3]=="ABANDON" || $row[3]=="EXITWITHTIMEOUT") {
              $unanswered++;
-            $unans_by_day["$partes_fecha[0]"]++;
-            $unans_by_hour["$partes_hora[0]"]++;
-            $unans_by_dw["$day_of_week"]++;
+            $unans_by_day["$partes_fecha[0]"] = ($unans_by_day["$partes_fecha[0]"] ?? 0) + 1;
+            $unans_by_hour["$partes_hora[0]"] = ($unans_by_hour["$partes_hora[0]"] ?? 0) + 1;
+            $unans_by_dw["$day_of_week"] = ($unans_by_dw["$day_of_week"] ?? 0) + 1;
         }
         if($row[3]=="COMPLETECALLER" || $row[3]=="COMPLETEAGENT") {
              $answered++;
-            $ans_by_day["$partes_fecha[0]"]++;
-            $ans_by_hour["$partes_hora[0]"]++;
-            $ans_by_dw["$day_of_week"]++;
+            $ans_by_day["$partes_fecha[0]"] = ($ans_by_day["$partes_fecha[0]"] ?? 0) + 1;
+            $ans_by_hour["$partes_hora[0]"] = ($ans_by_hour["$partes_hora[0]"] ?? 0) + 1;
+            $ans_by_dw["$day_of_week"] = ($ans_by_dw["$day_of_week"] ?? 0) + 1;
 
-            $total_time_by_day["$partes_fecha[0]"]+=$row[5];
-            $total_hold_by_day["$partes_fecha[0]"]+=$row[4];
+            $total_time_by_day["$partes_fecha[0]"] = ($total_time_by_day["$partes_fecha[0]"] ?? 0) + (int)$row[5];
+            $total_hold_by_day["$partes_fecha[0]"] = ($total_hold_by_day["$partes_fecha[0]"] ?? 0) + (int)$row[4];
 
-            $total_time_by_dw["$day_of_week"]+=$row[5];
-            $total_hold_by_dw["$day_of_week"]+=$row[4];
+            $total_time_by_dw["$day_of_week"] = ($total_time_by_dw["$day_of_week"] ?? 0) + (int)$row[5];
+            $total_hold_by_dw["$day_of_week"] = ($total_hold_by_dw["$day_of_week"] ?? 0) + (int)$row[4];
         
-            $total_time_by_hour["$partes_hora[0]"]+=$row[5];
-            $total_hold_by_hour["$partes_hora[0]"]+=$row[4];
+            $total_time_by_hour["$partes_hora[0]"] = ($total_time_by_hour["$partes_hora[0]"] ?? 0) + (int)$row[5];
+            $total_hold_by_hour["$partes_hora[0]"] = ($total_hold_by_hour["$partes_hora[0]"] ?? 0) + (int)$row[4];
         }
         if($row[3]=="AGENTLOGIN" || $row[3]=="AGENTCALLBACKLOGIN") {
              $login++;
-            $login_by_day["$partes_fecha[0]"]++;
-            $login_by_hour["$partes_hora[0]"]++;
-            $login_by_dw["$day_of_week"]++;
+            $login_by_day["$partes_fecha[0]"] = ($login_by_day["$partes_fecha[0]"] ?? 0) + 1;
+            $login_by_hour["$partes_hora[0]"] = ($login_by_hour["$partes_hora[0]"] ?? 0) + 1;
+            $login_by_dw["$day_of_week"] = ($login_by_dw["$day_of_week"] ?? 0) + 1;
         }
         if($row[3]=="AGENTLOGOFF" || $row[3]=="AGENTCALLBACKLOGOFF") {
              $logoff++;
-            $logout_by_day["$partes_fecha[0]"]++;
-            $logout_by_hour["$partes_hora[0]"]++;
-            $logout_by_dw["$day_of_week"]++;
+            $logout_by_day["$partes_fecha[0]"] = ($logout_by_day["$partes_fecha[0]"] ?? 0) + 1;
+            $logout_by_hour["$partes_hora[0]"] = ($logout_by_hour["$partes_hora[0]"] ?? 0) + 1;
+            $logout_by_dw["$day_of_week"] = ($logout_by_dw["$day_of_week"] ?? 0) + 1;
         }
     }
     $total_calls = $answered + $unanswered;
@@ -261,6 +266,8 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
                     $percent_unans = number_format($percent_unans,2);
                     $average_call_duration_print = seconds2minutes($average_call_duration);
                     if($key<>"") {
+                    $login_by_day["$key"]  = $login_by_day["$key"]  ?? 0;
+                    $logout_by_day["$key"] = $logout_by_day["$key"] ?? 0;
                     $linea_pdf = array($key,$ans_by_day["$key"],"$percent_ans ".$lang["$language"]['percent'],$unans_by_day["$key"],"$percent_unans ".$lang["$language"]['percent'],$average_call_duration_print,number_format($average_hold_duration,0),$login_by_day["$key"],$logout_by_day["$key"]);
 
                     echo "<tr $odd>\n";

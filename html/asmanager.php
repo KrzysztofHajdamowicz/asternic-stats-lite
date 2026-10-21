@@ -41,6 +41,10 @@ class AsteriskManager
     }
     
     function send_request($action, $parameters=array(), $wait_response=1) {
+        // fwrite() on a missing socket is a TypeError since PHP 8
+        if(!is_resource($this->socket)) {
+            return array();
+        }
         $req = "Action: $action\r\n";
         foreach($parameters as $var=>$val) {
             $req .= "$var: $val\r\n";
@@ -91,7 +95,7 @@ class AsteriskManager
 
                     // store parameter in $parameters
                     if(substr($buffer, 0, $a)=="Output") {
-                        $parameters[substr($buffer, 0, $a)] .= substr($buffer, $a + 2)."\n";
+                        $parameters['Output'] = ($parameters['Output'] ?? '') . substr($buffer, $a + 2)."\n";
                     } else {
                         $parameters[substr($buffer, 0, $a)] = substr($buffer, $a + 2);
                     }
@@ -170,7 +174,7 @@ class AsteriskManager
             return false;
         }
 
-        if($res['Response']=='Error') {
+        if(($res['Response'] ?? '')=='Error') {
             return false;
         }
 
@@ -178,6 +182,9 @@ class AsteriskManager
     }
     
     function disconnect() {
+        if(!is_resource($this->socket)) {
+            return;
+        }
         $this->logoff();
         fclose($this->socket);
     }
@@ -263,7 +270,7 @@ class AsteriskManager
     function database_show($family='') {
         $r = $this->command("database show $family");
 
-        $data = explode("\n",$r["data"]);
+        $data = explode("\n",$r["data"] ?? '');
         $db   = array();
 
         // Remove the Privilege => Command initial entry that comes from the heading
@@ -283,7 +290,7 @@ class AsteriskManager
 
     function database_get($family, $key) {
         $r = $this->command("database get ".str_replace(" ","/",$family)." ".str_replace(" ","/",$key));
-        $data = strpos($r["data"],"Value:");
+        $data = strpos($r["data"] ?? '',"Value:");
         if ($data !== false) {
             return trim(substr($r["data"],6+$data));
         } else {
@@ -368,7 +375,7 @@ class AsteriskManager
     function process_event($parameters)
     {
         $ret = false;
-        $e = strtolower($parameters['Event']);
+        $e = strtolower($parameters['Event'] ?? '');
         $this->log("Got event.. $e");
 
         $handler = '';

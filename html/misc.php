@@ -21,7 +21,8 @@
 
 function return_timestamp($date_string)
 {
-  list ($year,$month,$day,$hour,$min,$sec) = preg_split("/-|:| /",$date_string,6);
+  $parts = array_pad(preg_split("/-|:| /",(string)$date_string,6), 6, 0);
+  list ($year,$month,$day,$hour,$min,$sec) = array_map('intval', $parts);
   $u_timestamp = mktime($hour,$min,$sec,$month,$day,$year);
   return $u_timestamp;
 }
@@ -59,7 +60,7 @@ foreach($options as $key=>$val) {
 }
 
 if(!isset($seriename['A'])) {
-    if(preg_match("/secs/",$options['title'])) {
+    if(preg_match("/secs/",$options['title'] ?? '')) {
         $seriename['A']="Seconds";
     } else {
         $seriename['A']="Count";
@@ -81,7 +82,7 @@ foreach($dvalues as $serie=>$points) {
 ?>
 {
 backgroundColor: '<?php echo $color;?>',
-label: '<?php echo $seriename[$serie];?>',
+label: '<?php echo $seriename[$serie] ?? '';?>',
 data: [
 <?php echo $valuestext;?>
 ]
@@ -101,7 +102,7 @@ type: 'bar',
 	options: {
 		title: {
 			display: true,
-			text: '<?php echo $options['title'];?>'
+			text: '<?php echo $options['title'] ?? '';?>'
 		},
 		tooltips: {
 			mode: 'index',
@@ -150,7 +151,25 @@ function print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf) {
 		echo "</form>";
 }
 
+// Turns a "'q1','q2'" list coming from the request/session into a list that
+// is safe to embed in SQL. The query is later run through vsprintf(), which
+// throws a ValueError on PHP 8 for stray % signs, so those are doubled too.
+function sql_in_list($list) {
+    global $midb;
+    $items = array();
+    foreach(explode(",", (string)$list) as $item) {
+        $item = trim($item);
+        if(strlen($item) >= 2 && $item[0] == "'" && substr($item, -1) == "'") {
+            $item = substr($item, 1, -1);
+        }
+        $items[] = "'".str_replace('%', '%%', $midb->escape_string($item))."'";
+    }
+    return implode(",", $items);
+}
+
 function seconds2minutes($segundos) {
+    // Implicit float to int conversion in % is deprecated since PHP 8.1
+    $segundos = (int)$segundos;
     $minutos = intval($segundos / 60);
     $segundos = $segundos % 60;
     if(strlen($segundos)==1) {

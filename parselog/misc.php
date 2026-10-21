@@ -20,7 +20,8 @@
 */
 
 function return_timestamp($date_string) {
-    list ($year,$month,$day,$hour,$min,$sec) = preg_split("/-|:| /",$date_string,6);
+    $parts = array_pad(preg_split("/-|:| /",(string)$date_string,6), 6, 0);
+    list ($year,$month,$day,$hour,$min,$sec) = array_map('intval', $parts);
     $u_timestamp = mktime($hour,$min,$sec,$month,$day,$year);
     return $u_timestamp;
 }
@@ -36,15 +37,16 @@ function check_queue($queue_name) {
         return $queuecache["$queue_name"];
     }
 
-    $query = "SELECT qname_id,queue FROM qname WHERE queue='$queue_name'";
-    $res = $midb->consulta($query,0,0);
+    $query = "SELECT qname_id,queue FROM qname WHERE queue='%s'";
+    $res = $midb->consulta($query,$queue_name);
 
     if($midb->num_rows($res)>0) {
         $row = $midb->fetch_row($res);
+        $queuecache["$queue_name"]=$row[0];
         return $row[0];
     } else {
-        $query = "INSERT INTO qname (queue) VALUES ('$queue_name')";
-        $res = $midb->consulta($query,0,0);
+        $query = "INSERT INTO qname (queue) VALUES ('%s')";
+        $res = $midb->consulta($query,$queue_name);
         $id = $midb->insert_id($res);
         $queuecache["$queue_name"]=$id;
         return $id;
@@ -69,15 +71,16 @@ function check_agent($agent) {
         return $agentcache["$agent"];
     }
 
-    $query = "SELECT agent_id,agent FROM qagent WHERE agent='$agent'";
-    $res = $midb->consulta($query);
+    $query = "SELECT agent_id,agent FROM qagent WHERE agent='%s'";
+    $res = $midb->consulta($query,$agent);
 
     if($midb->num_rows($res)>0) {
         $row = $midb->fetch_row($res);
+        $agentcache["$agent"]=$row[0];
         return $row[0];
     } else {
-        $query = "INSERT INTO qagent (agent) VALUES ('$agent')";
-        $res = $midb->consulta($query,0,0);
+        $query = "INSERT INTO qagent (agent) VALUES ('%s')";
+        $res = $midb->consulta($query,$agent);
         $id = $midb->insert_id($res);
         $agentcache["$agent"]=$id;
         return $id;
@@ -90,14 +93,18 @@ function procesa($linea) {
     global $last_event_ts;
     global $midb;
 
+    if($linea === false || $linea === null) {
+        return;
+    }
+
     $linea = rtrim($linea);
     //list ($date,$uniqueid,$queue_name,$agent,$event,$data1,$data2,$data3) = preg_split("/\|/",$linea,8);
     $partes     = preg_split("/\|/",$linea,8);
-    $date       = array_shift($partes);
-    $uniqueid   = array_shift($partes);
-    $queue_name = array_shift($partes);
-    $agent      = array_shift($partes);
-    $event      = array_shift($partes);
+    $date       = (string)array_shift($partes);
+    $uniqueid   = (string)array_shift($partes);
+    $queue_name = (string)array_shift($partes);
+    $agent      = (string)array_shift($partes);
+    $event      = (string)array_shift($partes);
     if(count($partes)>0) { $data1 = array_shift($partes); } else { $data1=''; }
     if(count($partes)>0) { $data2 = array_shift($partes); } else { $data2=''; }
     if(count($partes)>0) { $data3 = array_shift($partes); } else { $data3=''; }
@@ -107,11 +114,12 @@ function procesa($linea) {
         return;
     }
 
-    if($date < $last_event_ts || $date == "") {
+    if($date == "" || $date < $last_event_ts) {
         return;
     }
 
-    $date = strftime("%Y-%m-%d %H:%M:%S",$date);
+    // strftime() is deprecated since PHP 8.1
+    $date = date("Y-m-d H:i:s",(int)$date);
     $queue_id = check_queue($queue_name);
     $agent_id = check_agent($agent);
 

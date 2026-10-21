@@ -129,11 +129,17 @@ foreach($data as $valor) {
 }
 }
 
-$header = unserialize(rawurldecode($_POST['head']));
-$data   = unserialize(rawurldecode($_POST['rawdata']));
-$width  = unserialize(rawurldecode($_POST['width']));
-$title  = unserialize(rawurldecode($_POST['title']));
-$cover  = unserialize(rawurldecode($_POST['cover']));
+// Never instantiate objects from user supplied data
+$header = unserialize(rawurldecode($_POST['head'] ?? ''),    ['allowed_classes' => false]);
+$data   = unserialize(rawurldecode($_POST['rawdata'] ?? ''), ['allowed_classes' => false]);
+$width  = unserialize(rawurldecode($_POST['width'] ?? ''),   ['allowed_classes' => false]);
+$title  = unserialize(rawurldecode($_POST['title'] ?? ''),   ['allowed_classes' => false]);
+$cover  = unserialize(rawurldecode($_POST['cover'] ?? ''),   ['allowed_classes' => false]);
+
+if(!is_array($header) || !is_array($data) || !is_array($width)) {
+    header('HTTP/1.1 400 Bad Request');
+    exit('Invalid export data');
+}
 
 if(isset($_POST['pdf']) || isset($_POST['pdf_x'])) {
 	$pdf=new PDF();
