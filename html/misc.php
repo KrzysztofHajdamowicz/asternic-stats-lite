@@ -27,98 +27,41 @@ function return_timestamp($date_string)
   return $u_timestamp;
 }
 
-function swf_bar($values,$width,$height,$divid,$stack) {
-
-?>
-
-<canvas id="<?php echo $divid?>" width='<?php echo $width;?>' height='<?php echo $height;?>'></canvas>
-
-
-<script>
-
-<?php
-parse_str($values,$options);
-
-$colores = array('#FF6600','#538353');
-$labels  = array();
-$dvalues = array();
-
-foreach($options as $key=>$val) {
-    if(substr($key,0,3)=="var") {
-        $labels[]=$val;
-    } else if(substr($key,0,3)=="tag") {
-        $series = substr($key,3,1);
-        $seriename[$series]=$val;
-    } else if(substr($key,0,3)=="val") {
-        if($stack==0) {
-            $dvalues['A'][]=$val;
-        } else {
-            $series = substr($key,3,1);
-            $dvalues[$series][]=$val;
-        }
-    }
-}
-
-if(!isset($seriename['A'])) {
-    if(preg_match("/secs/",$options['title'] ?? '')) {
-        $seriename['A']="Seconds";
-    } else {
-        $seriename['A']="Count";
-    }
-}
-
-$labelstext = "'".implode("','",$labels)."'";
-
-?>
-
-var barChartData_<?php echo $divid;?> = {
-    labels: [<?php echo $labelstext;?>],
-    datasets: [
-
-<?php
-foreach($dvalues as $serie=>$points) {
-    $valuestext = implode(",",$points);
-    $color = array_shift($colores);
-?>
+// Escape a value for HTML output (text and attribute values).
+function h($text)
 {
-backgroundColor: '<?php echo $color;?>',
-label: '<?php echo $seriename[$serie] ?? '';?>',
-data: [
-<?php echo $valuestext;?>
-]
-},
-<?php } ?>
-
-    ]
-};
-
-/* El script se emite justo despues de <canvas>, asi que el elemento ya
-   existe: no hace falta esperar al DOM ni usar jQuery/Prototype. */
-(function(){
-var ctx = document.getElementById('<?php echo $divid;?>').getContext('2d');
-var myChart = new Chart(ctx, {
-type: 'bar',
-	data: barChartData_<?php echo $divid;?>,
-	options: {
-		title: {
-			display: true,
-			text: '<?php echo $options['title'] ?? '';?>'
-		},
-		tooltips: {
-			mode: 'index',
-			intersect: false
-		},
-		responsive: true
-	}
-});
-})();
-</script>
-
-<?php
+  return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
 }
 
-function tooltip($texto,$width) {
- echo " onmouseover=\"this.T_WIDTH=$width;this.T_PADDING=5;this.T_STICKY = false; return escape('$texto')\" ";
+/*
+   Bar chart drawn in the browser by js/charts.js (Chart.js).
+
+   $labels  one label per bar (or per group of bars)
+   $series  series name => list of values, one value per label
+   $options 'stacked' => true  stack the series on top of each other
+            'wide'    => true  full-width chart instead of a half-width one
+
+   The data travels as JSON in a data attribute, so names with quotes or
+   other special characters are safe.
+*/
+function chart_bar($id, $title, $labels, $series, $options = array()) {
+    $datasets = array();
+    foreach($series as $name=>$values) {
+        $datasets[] = array('label'=>(string)$name, 'data'=>array_map('floatval', array_values($values)));
+    }
+    $config = array(
+        'title'    => (string)$title,
+        'labels'   => array_map('strval', array_values($labels)),
+        'datasets' => $datasets,
+        'stacked'  => !empty($options['stacked']),
+    );
+    $class = empty($options['wide']) ? 'chart' : 'chart chart-wide';
+    echo "<div class='$class'><canvas id='".h($id)."' role='img' aria-label='".h($title)."' data-chart='".h(json_encode($config))."'></canvas></div>\n";
+}
+
+// Hover text for an element, printed inside its tag
+function tooltip($texto) {
+    echo " title=\"".h($texto)."\" ";
 }
 
 
@@ -135,20 +78,20 @@ function print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf) {
 		$width_serial = rawurlencode($width_serial);
 		$title_serial = rawurlencode($title_serial);
 		$cover_serial = rawurlencode($cover_serial);
-		echo "<BR><form method=post action='export.php'>\n";
-		echo $lang["$language"]['export'];
-		echo "<input type='hidden' name='head' value='".$head_serial."' />\n";
-		echo "<input type='hidden' name='rawdata' value='".$data_serial."' />\n";
-		echo "<input type='hidden' name='width' value='".$width_serial."' />\n";
-		echo "<input type='hidden' name='title' value='".$title_serial."' />\n";
-		echo "<input type='hidden' name='cover' value='".$cover_serial."' />\n";
-		echo "<input type=image name='pdf' alt='export to pdf' src='images/pdf.gif' ";
-		tooltip($lang["$language"]['pdfhelp'],200);
-		echo ">\n";
-		echo "<input type=image name='csv' alt='export to csv' src='images/excel.gif' "; 
-		tooltip($lang["$language"]['csvhelp'],200);
-		echo ">\n";
-		echo "</form>";
+		echo "<form method='post' action='export.php' class='exports'>\n";
+		echo "<span>".$lang["$language"]['export']."</span>\n";
+		echo "<input type='hidden' name='head' value='".$head_serial."'>\n";
+		echo "<input type='hidden' name='rawdata' value='".$data_serial."'>\n";
+		echo "<input type='hidden' name='width' value='".$width_serial."'>\n";
+		echo "<input type='hidden' name='title' value='".$title_serial."'>\n";
+		echo "<input type='hidden' name='cover' value='".$cover_serial."'>\n";
+		echo "<button type='submit' name='pdf' value='1'";
+		tooltip($lang["$language"]['pdfhelp']);
+		echo "><img src='images/pdf.gif' alt=''> PDF</button>\n";
+		echo "<button type='submit' name='csv' value='1'";
+		tooltip($lang["$language"]['csvhelp']);
+		echo "><img src='images/excel.gif' alt=''> CSV</button>\n";
+		echo "</form>\n";
 }
 
 // Turns a "'q1','q2'" list coming from the request/session into a list that

@@ -19,63 +19,51 @@
     <http://www.gnu.org/licenses/>.
 */
 ?>
-<div id="sidebar">&nbsp;</div>
-<div id="content">
-<a id='0'></a>
-<div id='header'>
-<ul id='primary'>
+<header class="site-header" id="0">
+<div class="brand">Asternic <span>Call Center Stats</span></div>
+<nav class="tabs" aria-label="Reports">
 <?php
-$menu[] = $lang["$language"]['menu_home'];
-$menu[] = $lang["$language"]['menu_answered'];
-$menu[] = $lang["$language"]['menu_unanswered'];
-$menu[] = $lang["$language"]['menu_distribution'];
-$menu[] = "Realtime";
+$menu = array(
+    "index.php"        => $lang["$language"]['menu_home'],
+    "answered.php"     => $lang["$language"]['menu_answered'],
+    "unanswered.php"   => $lang["$language"]['menu_unanswered'],
+    "distribution.php" => $lang["$language"]['menu_distribution'],
+    "realtime.php"     => "Realtime",
+);
 
-$link[] = "index.php";
-$link[] = "answered.php";
-$link[] = "unanswered.php";
-$link[] = "distribution.php";
-$link[] = "realtime.php";
-
+// Section links of the current report
 $anchor = Array();
-
 if(basename($self)=="answered.php") {
     $anchor[]=$lang["$language"]['answered_calls_by_agent'];
     $anchor[]=$lang["$language"]['call_response'];
     $anchor[]=$lang["$language"]['answered_calls_by_queue'];
     $anchor[]=$lang["$language"]['disconnect_cause'];
-    $b=1;
 } elseif (basename($self) =="unanswered.php") {
     $anchor[]=$lang["$language"]['disconnect_cause'];
     $anchor[]=$lang["$language"]['unanswered_calls_qu'];
-    $b=2;
 } elseif (basename($self) =="distribution.php") {
-    $b=3;
     $anchor[]=$lang["$language"]['call_distrib_day'];
     $anchor[]=$lang["$language"]['call_distrib_hour'];
     $anchor[]=$lang["$language"]['call_distrib_week'];
 }
 
-for($a=0;$a<count($menu);$a++) {
-    if(basename($self)==$link[$a]) {
-        echo "<li><span>".$menu[$a]."</span></li>\n";
-        if(count($anchor)>0 && $a=$b) {
-            echo "<li><ul id='secondary'>\n";
-            $contador=1;
-            foreach ($anchor as $item) {
-                echo "<li><a href='#$contador'>$item</a></li>\n";
-                $contador++;
-            }
-            echo "</ul></li>\n";
-        }
-
-    } else {
-        if(isset($_SESSION['QSTATS']['start'])) {
-            echo "<li><a href='".$link["$a"]."'>".$menu["$a"]."</a></li>\n";
-        }
+foreach($menu as $link=>$label) {
+    if(basename($self)==$link) {
+        echo "<a href='$link' aria-current='page'>".h($label)."</a>\n";
+    } elseif(isset($_SESSION['QSTATS']['start'])) {
+        // Reports need a selection made on the home page first
+        echo "<a href='$link'>".h($label)."</a>\n";
     }
 }
 ?>
-</ul>
-
-</div>
+</nav>
+<?php if(count($anchor)>0) { ?>
+<nav class="sections" aria-label="Sections">
+<?php
+foreach ($anchor as $contador=>$item) {
+    echo "<a href='#".($contador+1)."'>".h($item)."</a>\n";
+}
+?>
+</nav>
+<?php } ?>
+</header>

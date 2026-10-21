@@ -19,14 +19,14 @@
     <http://www.gnu.org/licenses/>.
 */
 
-echo "<BR><h2>".$lang[$language]['calls_waiting_detail']."</h2><BR>";
+echo "<h2>".$lang[$language]['calls_waiting_detail']."</h2>";
 
 foreach($queue as $qn) {
     $position=1;
     if(!isset($queues[$qn]['calls']))  continue;
     foreach($queues[$qn]['calls'] as $key=>$val) {
         if($position==1) {
-            echo "<table width='700' cellpadding=3 cellspacing=3 border=0 class='sortable' id='table1' >\n";
+            echo "<table class='data sortable'>\n";
             echo "<thead>";
             echo "<tr>";
             echo "<th>".$lang[$language]['queue']."</th>";
@@ -37,9 +37,9 @@ foreach($queue as $qn) {
             echo "</thead>\n";
             echo "<tbody>\n";
         }
-        echo "<tr><td>$qn</td><td>$position</td>";
-        echo "<td>".$queues[$qn]['calls'][$key]['chaninfo']['callerid']."</td>";
-        echo "<td>".$queues[$qn]['calls'][$key]['chaninfo']['duration_str']." min</td>";
+        echo "<tr><td>".h($qn)."</td><td>$position</td>";
+        echo "<td>".h($queues[$qn]['calls'][$key]['chaninfo']['callerid'])."</td>";
+        echo "<td>".h($queues[$qn]['calls'][$key]['chaninfo']['duration_str'])." min</td>";
         echo "</tr>";
         $position++;
     }

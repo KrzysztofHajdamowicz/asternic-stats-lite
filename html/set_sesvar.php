@@ -20,10 +20,11 @@
 */
 
 require_once("config.php");
-if(isset($_REQUEST['sesvar'])) {
-  $variable=$_REQUEST['sesvar'];
-  $value=$_REQUEST['value'];
-  $_SESSION['QSTATS'][$variable]=$value;
+// Only the realtime view settings may be changed from here; anything else
+// (dates, queues) would bypass the report form.
+$allowed = array('hideloggedoff', 'filter');
+if(isset($_REQUEST['sesvar'], $_REQUEST['value']) && in_array($_REQUEST['sesvar'], $allowed, true)) {
+  $_SESSION['QSTATS'][$_REQUEST['sesvar']] = (string)$_REQUEST['value'];
 }
 
 ?>

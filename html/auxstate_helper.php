@@ -62,9 +62,9 @@ foreach ($queues as $key=>$val) {
   $queue[] = $key;
 }
 
-echo "<input type=checkbox name='hidelogedoff' onClick='sethide(this)' ";
-if($ocultar=="true") echo " checked ";
-echo "> ".$lang[$language]['hide_loggedoff']."\n";
+echo "<label class='toggle'><input type='checkbox' data-hide-loggedoff";
+if($ocultar=="true") echo " checked";
+echo "> ".$lang[$language]['hide_loggedoff']."</label>\n";
 
 include("realtime_agents.php");
 include("realtime_qsummary.php");
@@ -75,7 +75,7 @@ $time = explode(" ", $time);
 $time = $time[1] + $time[0];
 $endtime = $time;
 $totaltime = ($endtime - $begintime);
-echo "<br/><br/>".$lang[$language]['server_time']." ".date('Y-m-d H:i:s')."<br/>";
-echo $lang[$language]['php_parsed']." $totaltime ".$lang[$language]['seconds'];
+echo "<p class='meta'>".$lang[$language]['server_time']." ".date('Y-m-d H:i:s')." &middot; ";
+echo $lang[$language]['php_parsed']." ".number_format($totaltime,3)." ".$lang[$language]['seconds']."</p>";
 ?>
 

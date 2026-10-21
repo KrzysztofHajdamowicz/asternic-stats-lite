@@ -4,6 +4,19 @@
 
 Asternic Call Center Stats Lite is an open-source queue reporting solution for Asterisk© PBX. It provides detailed call center statistics and reporting capabilities for organizations using Asterisk telephony systems.
 
+## About this fork
+
+This is a modified version of Asternic Call Center Stats Lite 1.8 by
+Nicolás Gudiño ([asternic/asternic-stats-lite](https://github.com/asternic/asternic-stats-lite)),
+maintained by Krzysztof Hajdamowicz since 2026. Changes made in 2026: PHP 8.5
+support, a rewritten frontend (Chart.js 4, plain JavaScript, new stylesheet)
+and `parselogd`, a Go replacement for `parselog.php`. The full list is in the
+git history.
+
+Copyright 2007–2026 Nicolás Gudiño; modifications copyright 2026 Krzysztof
+Hajdamowicz. Distributed under the GNU General Public License version 3 or
+later, see `LICENSE`.
+
 ## Requirements
 
 - Linux server
@@ -138,3 +151,19 @@ GPL-3.0 license
 ## Support
 
 For advanced features and professional support, consider Asternic Call Center Stats PRO.
+
+## Frontend
+
+The web pages need no build step and load nothing from the internet:
+
+- `html/css/app.css` is the only stylesheet; colours are CSS custom properties
+  and a dark palette is used automatically when the system is in dark mode
+- charts are drawn by [Chart.js](https://www.chartjs.org) 4, vendored in
+  `html/js/vendor/` (to upgrade, replace `chart.umd.min.js` with the file of
+  the same name from the `chart.js` npm package); PHP code calls
+  `chart_bar()` from `html/misc.php` and `html/js/charts.js` draws the result
+- the other scripts in `html/js/` are small plain JavaScript files: report
+  form (`index.js`), realtime polling (`realtime.js`), table sorting
+  (`sortable.js`)
+
+Any current browser works; Internet Explorer is not supported.

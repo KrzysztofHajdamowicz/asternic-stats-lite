@@ -19,8 +19,8 @@
     <http://www.gnu.org/licenses/>.
 */
 
-echo "<h2>".$lang[$language]['queue_summary']."</h2><br/>";
-echo "<table width='700' cellpadding=3 cellspacing=3 border=0>\n";
+echo "<h2>".$lang[$language]['queue_summary']."</h2>";
+echo "<table class='data'>\n";
 echo "<thead>";
 echo "<tr>";
 echo "<th>".$lang[$language]['queue']."</th>";
@@ -45,7 +45,7 @@ foreach($queue as $elementq) {
             }
 
             if($contador%2) { $odd="class='odd'"; } else { $odd=""; }
-            echo "<tr $odd><td>$qt</td>";
+            echo "<tr $odd><td>".h($qt)."</td>";
 
             $datos = get_queue_numbers($elementq);
             if(is_array($datos)) {

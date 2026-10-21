@@ -19,15 +19,9 @@
     <http://www.gnu.org/licenses/>.
 */
 
-echo "<h2>".$lang[$language]['agent_status']."</h2><br/>";
+echo "<h2>".$lang[$language]['agent_status']."</h2>";
 
-$color['unavailable']="#dadada";
-$color['unknown']="#dadada";
-$color['busy']="#d0303f";
-$color['dialout']="#d0303f";
-$color['ringing']="#d0d01f";
-$color['not in use']="#00ff00";
-$color['paused']="#000000";
+// Status colours: .status-* classes in css/app.css
 
 foreach($queue as $qn) {
     if($filter=="" || stristr($qn,$filter)) {
@@ -61,7 +55,7 @@ foreach($queue as $qn) {
                  // Skip
             } else {
                 if($contador==1) {
-                   echo "<table width='700' cellpadding=3 cellspacing=3 border=0>\n";
+                   echo "<table class='data'>\n";
                    echo "<thead>";
                    echo "<tr>";
                    echo "<th>".$lang[$language]['queue']."</th>";
@@ -77,8 +71,8 @@ foreach($queue as $qn) {
                 if($last<>"") { $last=$last." ".$lang[$language]['min_ago']; } else { $last = $lang[$language]['no_info']; }
                 $agent_name = agent_name($aname);
                 echo "<tr $odd>";
-                echo "<td width=200>$qn</td>";
-                echo "<td width=200>$agent_name</td>";
+                echo "<td>".h($qn)."</td>";
+                echo "<td>".h($agent_name)."</td>";
 
                 if($stat<>"") $aval="paused";
 
@@ -89,10 +83,10 @@ foreach($queue as $qn) {
                 $aval2 = preg_replace("/ /","_",$aval);
                 $mystringaval = $lang[$language][$aval2] ?? '';
 				if($mystringaval=="") $mystringaval = $aval;
-                echo "<td><div style='float: left; background: ".($color[$aval] ?? '#dadada')."; width: 1em;'>&nbsp;</div>&nbsp; $mystringaval";
+                echo "<td><span class='status-dot status-".h($aval2)."'></span> ".h($mystringaval);
                 echo "</td>";
-                echo "<td>$dur</td>";
-                echo "<td>$clid</td>";
+                echo "<td>".h($dur)."</td>";
+                echo "<td>".h($clid)."</td>";
                 echo "<td>$last</td>";
                 echo "</tr>";
                 $contador++;
@@ -100,7 +94,7 @@ foreach($queue as $qn) {
         }
         if($contador>1) {
             echo "</tbody>";
-            echo "</table><br/>\n";
+            echo "</table>\n";
         }
     } 
 }
