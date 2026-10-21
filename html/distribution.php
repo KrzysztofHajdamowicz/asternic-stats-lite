@@ -21,27 +21,9 @@
 
 require_once("config.php");
 include("sesvars.php");
-?>
-<!doctype html>
-            
-<html lang="en">
-<head>      
-  <meta charset="utf-8">
-            
-  <title>Asternic Call Center Stats</title>
-  <meta name="description" content="Asternic Call Center Stats Lite Reports">
-  <meta name="author" content="asternic.net">
-            
-  <link rel="stylesheet" href="css/basic.css">
-  <link rel="stylesheet" href="css/tab.css">
-  <link rel="stylesheet" href="css/table.css">
-  <link rel="stylesheet" href="css/fixed-all.css">
-                
-  <script src="js/sorttable.js"></script>
-  <script src="js/Chart.min.js"></script>
-                
-</head>         
-<?php
+$page_scripts = array("js/sorttable.js", "js/Chart.min.js");
+include("header.php");
+
 
 $graphcolor = "&bgcolor=0xF0ffff&bgcolorchart=0xdfedf3&fade1=ff6600&fade2=ff6314&colorbase=0xfff3b3&reverse=1";
 $graphcolorstack = "&bgcolor=0xF0ffff&bgcolorchart=0xdfedf3&fade1=ff6600&colorbase=fff3b3&reverse=1&fade2=0x528252";
@@ -143,10 +125,6 @@ $cover_pdf.= $lang["$language"]['number_unanswered'].": ".$unanswered." ".$lang[
 $cover_pdf.= $lang["$language"]['agent_login'].": ".$login."\n";
 $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
 ?>
-<body>
-<?php include("menu.php"); ?>
-<div id="main">
-    <div id="contents">
         <table style="width: 99%; border-collapse: separate; border-spacing: 1px;">
         <thead>
         <tr>
@@ -573,10 +551,4 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
             </thead>
             </table>
 
-</div>
-</div>
-</div>
-<div id='footer'>&copy; Copyright 2008 - <?php echo date('Y');?> by Nicol&aacute;s Gudi&ntilde;o - <a href='http://www.asternic.net'>Asternic Asterisk Tools</a> Licensed under <a href='http://www.opensource.org/licenses/gpl-3.0.html'>GPL3</a></div>
-<script src="js/wz_tooltip.js"></script>
-</body>
-</html>
+<?php include("footer.php"); ?>

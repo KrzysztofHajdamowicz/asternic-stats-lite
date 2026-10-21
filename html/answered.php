@@ -20,27 +20,9 @@
 */
 require_once("config.php");
 include("sesvars.php");
-?>
-<!doctype html>
+$page_scripts = array("js/sorttable.js", "js/Chart.min.js");
+include("header.php");
 
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-
-  <title>Asternic Call Center Stats</title>
-  <meta name="description" content="Asternic Call Center Stats Lite Reports">
-  <meta name="author" content="asternic.net">
-
-  <link rel="stylesheet" href="css/basic.css">
-  <link rel="stylesheet" href="css/tab.css">
-  <link rel="stylesheet" href="css/table.css">
-  <link rel="stylesheet" href="css/fixed-all.css">
-
-  <script src="js/sorttable.js"></script>
-  <script src="js/Chart.min.js"></script>
-
-</head>
-<?php
 
 // This query shows the hangup cause, how many calls an
 // agent hanged up, and a caller hanged up.
@@ -245,10 +227,6 @@ $cover_pdf.= $lang["$language"]['total'].": ".$total_duration_print." ".$lang["$
 $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$language"]['secs']."\n";
 
 ?>
-<body>
-<?php include("menu.php"); ?>
-<div id="main">
-    <div id="contents">
         <table style="width: 99%; border-collapse: separate; border-spacing: 1px;">
         <thead>
         <tr>
@@ -631,10 +609,4 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
             </tbody>
             </table>
         <?php } ?>
-</div>
-</div>
-</div>
-<div id='footer'>&copy; Copyright 2007 - <?php echo date('Y');?> by Nicol&aacute;s Gudi&ntilde;o - <a href='http://www.asternic.net'>Asternic Asterisk Tools</a> Licensed under <a href='http://www.opensource.org/licenses/gpl-3.0.html'>GPL3</a></div>
-<script src="js/wz_tooltip.js"></script>
-</body>
-</html>
+<?php include("footer.php"); ?>

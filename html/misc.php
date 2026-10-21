@@ -27,6 +27,12 @@ function return_timestamp($date_string)
   return $u_timestamp;
 }
 
+// Escape a value for HTML output (text and attribute values).
+function h($text)
+{
+  return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
+}
+
 function swf_bar($values,$width,$height,$divid,$stack) {
 
 ?>

@@ -26,20 +26,10 @@ if(isset($_SESSION['QSTATS']['hideloggedoff'])) {
 } else {
     $ocultar="false";
 }
+$page_scripts = array("js/sorttable.js", "js/prototype-1.4.0.js");
+include("header.php");
 ?>
-<!-- http://www.house.com.ar/quirksmode -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Asternic Call Center Stats</title>
-	<style type="text/css" media="screen">@import "css/basic.css";</style>
-	<style type="text/css" media="screen">@import "css/tab.css";</style>
-	<style type="text/css" media="screen">@import "css/table.css";</style>
-	<style type="text/css" media="screen">@import "css/fixed-all.css";</style>
-	<script type="text/javascript" src="js/sorttable.js"></script>
-	<script type="text/javascript" src="js/prototype-1.4.0.js"></script>
-        <script language='javascript'>
+<script>
 		Event.observe(window, 'load', init, false);
 		function init(){
 			getdata();
@@ -65,11 +55,6 @@ if(isset($_SESSION['QSTATS']['hideloggedoff'])) {
                 }
  
 	</script>
-</head>
-<body>
-<?php include("menu.php"); ?>
-<div id="main">
-        <div id="contents" style='min-width: 900px'>
 
 <div style='min-width: 870px'>
 
@@ -110,8 +95,4 @@ for($a=1;$a<10;$a++) {
 
 
 </div>
-</div>
-</div>
-<script type="text/javascript" src="js/wz_tooltip.js"></script>
-</body>
-</html>
+<?php include("footer.php"); ?>

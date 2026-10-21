@@ -78,24 +78,10 @@ while ($row = $midb->fetch_row($res)) {
   $agentes[] = $row[0];
 }
 
+$page_scripts = array("js/validmonth.js");
+include("header.php");
 ?>
-<!-- http://www.house.com.ar/quirksmode -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-	<title>Asternic Call Center Stats</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-	<style type="text/css" media="screen">@import "css/basic.css";</style>
-	<style type="text/css" media="screen">@import "css/tab.css";</style>
-	<style type="text/css" media="screen">@import "css/fixed-all.css";</style>
-	<script src="js/validmonth.js" type="text/javascript" language="javascript1.2"></script>
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-</script>
-<script type="text/javascript">
-_uacct = "UA-93960-1";
-urchinTracker();
-</script>
-	<script language="JavaScript">
+<script>
 
 	function List_move_around(direction, all, box) {
 
@@ -261,28 +247,6 @@ urchinTracker();
 
 	}
 	</script>
-<!--[if gte IE 5.5000]>
-<style type='text/css'> img { behavior:url(pngbehavior.htc) } </style>
-<![endif]-->
-<!--[if IE]>
-<link 
- href="css/fixed-ie.css" 
- rel="stylesheet" 
- type="text/css" 
- media="screen"> 
-<script type="text/javascript"> 
-onload = function() { content.focus() } 
-</script> 
-
-<![endif]-->
-
-
-</head>
-<body>
-<div id='wrapper'>
-<?php include("menu.php");?>
-<div id="main">
-	<div id="contents">
 
 <form method=POST action='answered.php'>
 <input type=hidden name=start>
@@ -501,10 +465,4 @@ echo "<a href=\"javascript:setdates('$begin_past2_month', '$end_month')\">".$lan
 <INPUT TYPE=submit VALUE='<?php echo $lang["$language"]['display_report']?>' onClick='return envia();'>
 </form>
 		</div>
-	</div>
-</div>
-</div>
-</div>
-<div id='footer'>&copy; Copyright 2007 - <?php echo date('Y');?> by Nicol&aacute;s Gudi&ntilde;o - <a href='http://www.asternic.net'>Asternic Asterisk Tools</a> Licensed under <a href='http://www.opensource.org/licenses/gpl-3.0.html'>GPL3</a></div>
-</body>
-</html>
+<?php include("footer.php"); ?>

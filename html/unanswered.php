@@ -21,27 +21,9 @@
 
 require_once("config.php");
 include("sesvars.php");
-?>
-<!doctype html>
-            
-<html lang="en">
-<head>      
-  <meta charset="utf-8">
-            
-  <title>Asternic Call Center Stats</title>
-  <meta name="description" content="Asternic Call Center Stats Lite Reports">
-  <meta name="author" content="asternic.net">
-            
-  <link rel="stylesheet" href="css/basic.css">
-  <link rel="stylesheet" href="css/tab.css">
-  <link rel="stylesheet" href="css/table.css">
-  <link rel="stylesheet" href="css/fixed-all.css">
-                
-  <script src="js/sorttable.js"></script>
-  <script src="js/Chart.min.js"></script>
-                
-</head>         
-<?php
+$page_scripts = array("js/sorttable.js", "js/Chart.min.js");
+include("header.php");
+
 
 
 // ABANDONED CALLS
@@ -114,10 +96,6 @@ $start_parts = preg_split("/ /", $start);
 $end_parts   = preg_split("/ /", $end);
 
 ?>
-<body>
-<?php include("menu.php"); ?>
-<div id="main">
-    <div id="contents">
         <table style="width: 99%; border-collapse: separate; border-spacing: 1px;">
         <thead>
         <tr>
@@ -302,10 +280,4 @@ $end_parts   = preg_split("/ /", $end);
             </table>
             <br/>
             <br/>
-</div>
-</div>
-</div>
-<div id='footer'>&copy; Copyright 2007 - <?php echo date('Y');?> by Nicol&aacute;s Gudi&ntilde;o - <a href='http://www.asternic.net'>Asternic Asterisk Tools</a> Licensed under <a href='http://www.opensource.org/licenses/gpl-3.0.html'>GPL3</a></div>
-<script src="js/wz_tooltip.js"></script>
-</body>
-</html>
+<?php include("footer.php"); ?>
