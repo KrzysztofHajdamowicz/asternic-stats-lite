@@ -21,7 +21,7 @@
 
 require_once("config.php");
 include("sesvars.php");
-$page_scripts = array("js/sorttable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
+$page_scripts = array("js/sortable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
 include("header.php");
 
 
@@ -186,7 +186,7 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
             <caption>
             <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
             <?php 
-            tooltip($lang["$language"]['gotop'],200);
+            tooltip($lang["$language"]['gotop']);
             ?>
             ></a>&nbsp;&nbsp;
             <?php echo $lang["$language"]['call_distrib_day']?>
@@ -276,7 +276,7 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
             <caption>
             <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
             <?php 
-            tooltip($lang["$language"]['gotop'],200);
+            tooltip($lang["$language"]['gotop']);
             ?>
             ></a>&nbsp;&nbsp;
             <?php echo $lang["$language"]['call_distrib_hour']?>
@@ -411,7 +411,7 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
             <caption>
             <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
             <?php 
-            tooltip($lang["$language"]['gotop'],200);
+            tooltip($lang["$language"]['gotop']);
             ?>
             ></a>&nbsp;&nbsp;
 

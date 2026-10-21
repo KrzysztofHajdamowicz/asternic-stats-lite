@@ -20,7 +20,7 @@
 */
 require_once("config.php");
 include("sesvars.php");
-$page_scripts = array("js/sorttable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
+$page_scripts = array("js/sortable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
 include("header.php");
 
 
@@ -290,7 +290,7 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
         <caption>
         <a href='#0'><img alt='go up' src='images/go-up.png' class='icon' width=16 height=16 
         <?php 
-        tooltip($lang["$language"]['gotop'],200);
+        tooltip($lang["$language"]['gotop']);
         ?> 
         ></a>&nbsp;&nbsp;
         <?php echo $lang["$language"]['answered_calls_by_agent']?>
@@ -387,7 +387,7 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
             <caption>
             <a href='#0'><img alt='go up' src='images/go-up.png' class='icon' width=16 height=16 
             <?php 
-            tooltip($lang["$language"]['gotop'],200);
+            tooltip($lang["$language"]['gotop']);
             ?>
             ></a>&nbsp;&nbsp;
             <?php echo $lang["$language"]['call_response']?></caption>
@@ -454,7 +454,7 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
             <a href='#0'><img alt='go up' src='images/go-up.png' class='icon' width=16 height=16 
 
             <?php 
-            tooltip($lang["$language"]['gotop'],200);
+            tooltip($lang["$language"]['gotop']);
             ?>
             ></a>&nbsp;&nbsp;
             <?php echo $lang["$language"]['answered_calls_by_queue']?></caption>
@@ -514,7 +514,7 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
             <a href='#0'><img alt='go up' src='images/go-up.png' class='icon' width=16 height=16 
 
             <?php 
-            tooltip($lang["$language"]['gotop'],200);
+            tooltip($lang["$language"]['gotop']);
             ?>
             ></a>&nbsp;&nbsp;
             <?php echo $lang["$language"]['disconnect_cause']?></caption>

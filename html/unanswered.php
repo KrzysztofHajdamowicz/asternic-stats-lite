@@ -21,7 +21,7 @@
 
 require_once("config.php");
 include("sesvars.php");
-$page_scripts = array("js/sorttable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
+$page_scripts = array("js/sortable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
 include("header.php");
 
 
@@ -156,7 +156,7 @@ $end_parts   = preg_split("/ /", $end);
         <caption>
         <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
         <?php 
-        tooltip($lang["$language"]['gotop'],200);
+        tooltip($lang["$language"]['gotop']);
         ?>
         ></a>&nbsp;&nbsp;
         <?php echo $lang["$language"]['disconnect_cause']?>
@@ -228,7 +228,7 @@ $end_parts   = preg_split("/ /", $end);
             <caption>
             <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
             <?php 
-            tooltip($lang["$language"]['gotop'],200);
+            tooltip($lang["$language"]['gotop']);
             ?>
             ></a>&nbsp;&nbsp;
             <?php echo $lang["$language"]['unanswered_calls_qu']?>

@@ -26,7 +26,7 @@ if(isset($_SESSION['QSTATS']['hideloggedoff'])) {
 } else {
     $ocultar="false";
 }
-$page_scripts = array("js/realtime.js");
+$page_scripts = array("js/sortable.js", "js/realtime.js");
 include("header.php");
 ?>
 <h2><?php echo $lang[$language]['current_agent_status']; ?></h2>

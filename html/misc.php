@@ -59,8 +59,9 @@ function chart_bar($id, $title, $labels, $series, $options = array()) {
     echo "<div class='$class'><canvas id='".h($id)."' role='img' aria-label='".h($title)."' data-chart='".h(json_encode($config))."'></canvas></div>\n";
 }
 
-function tooltip($texto,$width) {
- echo " onmouseover=\"this.T_WIDTH=$width;this.T_PADDING=5;this.T_STICKY = false; return escape('$texto')\" ";
+// Hover text for an element, printed inside its tag
+function tooltip($texto) {
+    echo " title=\"".h($texto)."\" ";
 }
 
 
@@ -85,10 +86,10 @@ function print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf) {
 		echo "<input type='hidden' name='title' value='".$title_serial."' />\n";
 		echo "<input type='hidden' name='cover' value='".$cover_serial."' />\n";
 		echo "<input type=image name='pdf' alt='export to pdf' src='images/pdf.gif' ";
-		tooltip($lang["$language"]['pdfhelp'],200);
+		tooltip($lang["$language"]['pdfhelp']);
 		echo ">\n";
 		echo "<input type=image name='csv' alt='export to csv' src='images/excel.gif' "; 
-		tooltip($lang["$language"]['csvhelp'],200);
+		tooltip($lang["$language"]['csvhelp']);
 		echo ">\n";
 		echo "</form>";
 }
