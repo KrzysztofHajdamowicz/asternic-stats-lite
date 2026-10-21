@@ -99,3 +99,8 @@ html, body {
 img { border: 0; }
 
 td { padding: 2px; }
+
+.charts { display: flex; gap: 1em; }
+.charts .chart { flex: 1; }
+.chart { position: relative; height: 240px; min-width: 0; }
+.chart-wide { height: 420px; }

@@ -20,7 +20,7 @@
 */
 require_once("config.php");
 include("sesvars.php");
-$page_scripts = array("js/sorttable.js", "js/Chart.min.js");
+$page_scripts = array("js/sorttable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
 include("header.php");
 
 
@@ -314,16 +314,18 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
                 $title_pdf=$lang["$language"]['answered_calls_by_agent'];
 
                 $contador=0;
-                $query1 = "";
-                $query2 = "";
+                $chart_agents = array();
+                $chart_time   = array();
+                $chart_calls  = array();
                 $data_pdf = array();
                 if(count($total_calls2)>0) {
                 foreach($total_calls2 as $agent=>$val) {
                     $contavar = $contador +1;
                     $cual = $contador % 2;
                     if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
-                    $query1 .= "val$contavar=".$total_time2["$agent"]."&var$contavar=$agent&";
-                    $query2 .= "val$contavar=".$val."&var$contavar=$agent&";
+                    $chart_agents[] = $agent;
+                    $chart_time[]   = $total_time2["$agent"];
+                    $chart_calls[]  = $val;
 
                     $time_print = seconds2minutes($total_time2["$agent"]);
                     $avg_time = $total_time2["$agent"] / $val;
@@ -361,9 +363,6 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
                        $data_pdf[]=$linea_pdf;
                     $contador++;
                 }
-                
-                $query1.="title=".$lang["$language"]['total_time_agent'];
-                $query2.="title=".$lang["$language"]['no_calls_agent'];
                 }
                 ?>
             </tbody>
@@ -376,15 +375,10 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
         <br/>    
             <?php
             if(count($total_calls2)>0) {
-                echo "<table style='width: 99%; border-collapse: separate; border-spacing: 1px;'>\n";
-                echo "<thead>\n";
-                echo "<tr><td style='text-align:center; background-color: #fffdf3; width: 100%;'>\n";
-                swf_bar($query1,364,220,"chart1",0);
-                echo "</td><td style='text-align:center; background-color: #fffdf3; width: 100%;'>\n";
-                swf_bar($query2,364,220,"chart2",0);
-                echo "</td></tr>\n";
-                echo "</thead>\n";
-                echo "</table><br/>\n";
+                echo "<div class='charts'>\n";
+                chart_bar("chart1", $lang["$language"]['total_time_agent'], $chart_agents, array($lang["$language"]['seconds']=>$chart_time));
+                chart_bar("chart2", $lang["$language"]['no_calls_agent'], $chart_agents, array($lang["$language"]['Calls']=>$chart_calls));
+                echo "</div>\n";
             }
             ?>
 
@@ -413,12 +407,14 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
                 <?php
                 $countrow=0;
                 $partial_total = 0;
-                $query2="";
+                $chart_labels = array();
+                $chart_values = array();
                 $total_y_transfer = $answer['15'] + $answer['30'] +  $answer['45'] + $answer['60'] +  $answer['75'] + $answer['90'] +  $answer['91+'];
                 foreach($answer as $key=>$val)
                 {
                     $newcont = $countrow+1;
-                    $query2.="val$newcont=$val&var$newcont=$key%20".$lang["$language"]['secs']."&";
+                    $chart_labels[] = "$key ".$lang["$language"]['secs'];
+                    $chart_values[] = $val;
                     $cual = ($countrow%2);
                     if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
                     echo "<tr $odd>\n";
@@ -439,14 +435,13 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
                     echo "</tr>\n";
                     $countrow++;
                 }
-                $query2.="title=".$lang["$language"]['call_response'];
                 ?>
                 </tbody>
               </table>
               </td>
                 <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
                 <?php
-                swf_bar($query2,364,220,"chart3",0);
+                chart_bar("chart3", $lang["$language"]['call_response'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
                 ?>
                 </td>
             </tr>
@@ -477,7 +472,8 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
                 <tbody>
                 <?php
                 $countrow=0;
-                $query2="";
+                $chart_labels = array();
+                $chart_values = array();
                 if(count($total_calls_queue)==0) {
                         $total_calls_queue[""]=0;
                 }
@@ -493,9 +489,9 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
                     $percent =number_format($percent,2);
                     echo "<tr $odd><td>$key</td><td>$val ".$lang["$language"]['calls']."</td><td>$percent %</td></tr>\n";
                     $countrow++;
-                    $query2.="var$countrow=$key&val$countrow=$val&";
+                    $chart_labels[] = $key;
+                    $chart_values[] = $val;
                 }
-                $query2.="title=".addslashes($lang[$language]['answered_calls_by_queue']);
                 ?>
               </tbody>
               </table>
@@ -503,7 +499,7 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
             <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
                 <?php 
                 if ($countrow>1) {
-                    swf_bar("$query2",364,220,"chart4",0);
+                    chart_bar("chart4", $lang["$language"]['answered_calls_by_queue'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
                    } 
                 ?>
             </td>
@@ -569,10 +565,9 @@ $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$l
             </td>
             <td style='text-align:center; background-color: #fffdf3; width: 100%;'>
                 <?php
-                $query2 = "var1=".$lang["$language"]['agent']."&val1=".$hangup_cause["COMPLETEAGENT"]."&";
-                $query2 .= "var2=".$lang["$language"]['caller']."&val2=".$hangup_cause["COMPLETECALLER"];
-                $query2.="&title=".$lang["$language"]['disconnect_cause'];
-                swf_bar($query2,364,220,"chart5",0);
+                chart_bar("chart5", $lang["$language"]['disconnect_cause'],
+                    array($lang["$language"]['agent'], $lang["$language"]['caller']),
+                    array($lang["$language"]['Calls']=>array($hangup_cause["COMPLETEAGENT"], $hangup_cause["COMPLETECALLER"])));
                 ?>
             </td>
             </tr>

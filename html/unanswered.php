@@ -21,7 +21,7 @@
 
 require_once("config.php");
 include("sesvars.php");
-$page_scripts = array("js/sorttable.js", "js/Chart.min.js");
+$page_scripts = array("js/sorttable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
 include("header.php");
 
 
@@ -208,10 +208,9 @@ $end_parts   = preg_split("/ /", $end);
             </td>
             <td style="text-align: center; background-color: #fffdf3;">
                 <?php
-                $query2 = "var1=".$lang["$language"]['abandon']."&val1=".$abandoned."&";
-                $query2 .= "var2=".$lang["$language"]['timeout']."&val2=".$timeout;
-                $query2.="&title=".$lang["$language"]['disconnect_cause'];
-                swf_bar($query2,350,211,"chart1",0);
+                chart_bar("chart1", $lang["$language"]['disconnect_cause'],
+                    array($lang["$language"]['abandon'], $lang["$language"]['timeout']),
+                    array($lang["$language"]['Calls']=>array($abandoned, $timeout)));
                 ?>
             </td>
             </tr>
@@ -248,7 +247,8 @@ $end_parts   = preg_split("/ /", $end);
                 <tbody>
                 <?php
                 $countrow=0;
-                $query2="";
+                $chart_labels = array();
+                $chart_values = array();
                 asort($abandon_calls_queue);
                 foreach($abandon_calls_queue as $key=>$val) {
                     $cual = $countrow%2;
@@ -261,19 +261,17 @@ $end_parts   = preg_split("/ /", $end);
                     $percent =number_format($percent,2);
                     echo "<tr $odd><td>$key</td><td>$val calls</td><td>$percent ".$lang["$language"]['percent']."</td></tr>\n";
                     $countrow++;
-                    $query2.="var$countrow=$key&val$countrow=$val&";
+                    $chart_labels[] = $key;
+                    $chart_values[] = $val;
                 }
-                $query2.="title=".$lang["$language"]['unanswered_calls_qu'];
                 ?>
               </tbody>
               </table>
             </td>
             <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
                 <?php 
-                //if ($countrow>1) {
-                    swf_bar($query2,350,211,"chart2",0);
-                   //} 
-                   ?>
+                chart_bar("chart2", $lang["$language"]['unanswered_calls_qu'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
+                ?>
             </td>
             </tr>
             </thead>

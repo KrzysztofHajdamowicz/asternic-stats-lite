@@ -33,94 +33,30 @@ function h($text)
   return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
 }
 
-function swf_bar($values,$width,$height,$divid,$stack) {
+/*
+   Bar chart drawn in the browser by js/charts.js (Chart.js).
 
-?>
+   $labels  one label per bar (or per group of bars)
+   $series  series name => list of values, one value per label
+   $options 'stacked' => true  stack the series on top of each other
+            'wide'    => true  full-width chart instead of a half-width one
 
-<canvas id="<?php echo $divid?>" width='<?php echo $width;?>' height='<?php echo $height;?>'></canvas>
-
-
-<script>
-
-<?php
-parse_str($values,$options);
-
-$colores = array('#FF6600','#538353');
-$labels  = array();
-$dvalues = array();
-
-foreach($options as $key=>$val) {
-    if(substr($key,0,3)=="var") {
-        $labels[]=$val;
-    } else if(substr($key,0,3)=="tag") {
-        $series = substr($key,3,1);
-        $seriename[$series]=$val;
-    } else if(substr($key,0,3)=="val") {
-        if($stack==0) {
-            $dvalues['A'][]=$val;
-        } else {
-            $series = substr($key,3,1);
-            $dvalues[$series][]=$val;
-        }
+   The data travels as JSON in a data attribute, so names with quotes or
+   other special characters are safe.
+*/
+function chart_bar($id, $title, $labels, $series, $options = array()) {
+    $datasets = array();
+    foreach($series as $name=>$values) {
+        $datasets[] = array('label'=>(string)$name, 'data'=>array_map('floatval', array_values($values)));
     }
-}
-
-if(!isset($seriename['A'])) {
-    if(preg_match("/secs/",$options['title'] ?? '')) {
-        $seriename['A']="Seconds";
-    } else {
-        $seriename['A']="Count";
-    }
-}
-
-$labelstext = "'".implode("','",$labels)."'";
-
-?>
-
-var barChartData_<?php echo $divid;?> = {
-    labels: [<?php echo $labelstext;?>],
-    datasets: [
-
-<?php
-foreach($dvalues as $serie=>$points) {
-    $valuestext = implode(",",$points);
-    $color = array_shift($colores);
-?>
-{
-backgroundColor: '<?php echo $color;?>',
-label: '<?php echo $seriename[$serie] ?? '';?>',
-data: [
-<?php echo $valuestext;?>
-]
-},
-<?php } ?>
-
-    ]
-};
-
-/* El script se emite justo despues de <canvas>, asi que el elemento ya
-   existe: no hace falta esperar al DOM ni usar jQuery/Prototype. */
-(function(){
-var ctx = document.getElementById('<?php echo $divid;?>').getContext('2d');
-var myChart = new Chart(ctx, {
-type: 'bar',
-	data: barChartData_<?php echo $divid;?>,
-	options: {
-		title: {
-			display: true,
-			text: '<?php echo $options['title'] ?? '';?>'
-		},
-		tooltips: {
-			mode: 'index',
-			intersect: false
-		},
-		responsive: true
-	}
-});
-})();
-</script>
-
-<?php
+    $config = array(
+        'title'    => (string)$title,
+        'labels'   => array_map('strval', array_values($labels)),
+        'datasets' => $datasets,
+        'stacked'  => !empty($options['stacked']),
+    );
+    $class = empty($options['wide']) ? 'chart' : 'chart chart-wide';
+    echo "<div class='$class'><canvas id='".h($id)."' role='img' aria-label='".h($title)."' data-chart='".h(json_encode($config))."'></canvas></div>\n";
 }
 
 function tooltip($texto,$width) {

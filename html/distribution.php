@@ -21,12 +21,10 @@
 
 require_once("config.php");
 include("sesvars.php");
-$page_scripts = array("js/sorttable.js", "js/Chart.min.js");
+$page_scripts = array("js/sorttable.js", "js/vendor/chart.umd.min.js", "js/charts.js");
 include("header.php");
 
 
-$graphcolor = "&bgcolor=0xF0ffff&bgcolorchart=0xdfedf3&fade1=ff6600&fade2=ff6314&colorbase=0xfff3b3&reverse=1";
-$graphcolorstack = "&bgcolor=0xF0ffff&bgcolorchart=0xdfedf3&fade1=ff6600&colorbase=fff3b3&reverse=1&fade2=0x528252";
 
 // ABANDONED CALLS
 
@@ -37,7 +35,6 @@ $query.= "qs.qevent = ac.event_id AND qs.datetime >= '%s' AND qs.datetime <= '%s
 $query.= "AND q.queue IN ($queue_sql,'NONE') AND ac.event IN ('ABANDON', 'EXITWITHTIMEOUT','COMPLETECALLER','COMPLETEAGENT','AGENTLOGIN','AGENTLOGOFF','AGENTCALLBACKLOGIN','AGENTCALLBACKLOGOFF') ";
 $query.= "ORDER BY qs.datetime";
 
-$query_comb     = "";
 $login          = 0;
 $logoff         = 0;
 $answered       = 0;
@@ -305,10 +302,11 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
                 $title_pdf=$lang["$language"]['call_distrib_hour'];
                 $data_pdf = array();
 
-                $query_ans = "";
-                $query_unans = "";
-                $query_time="";
-                $query_hold="";
+                $chart_labels = array();
+                $chart_ans    = array();
+                $chart_unans  = array();
+                $chart_time   = array();
+                $chart_hold   = array();
                 for($key=0;$key<24;$key++) {
                     $cual = ($key+1)%2;
                     if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
@@ -357,19 +355,13 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
                     echo "<td>".$login_by_hour["$key"]."</td>\n";
                     echo "<td>".$logout_by_hour["$key"]."</td>\n";
                     echo "</tr>\n";
-                    $gkey = $key+1;
-                    $query_ans  .="var$gkey=$key&val$gkey=".$ans_by_hour["$key"]."&";
-                    $query_unans.="var$gkey=$key&val$gkey=".$unans_by_hour["$key"]."&";
-                    $query_comb.= "var$gkey=$key%20".$lang["$language"]['hours']."&valA$gkey=".$ans_by_hour["$key"]."&valB$gkey=".$unans_by_hour["$key"]."&";
-                    $query_time.="var$gkey=$key&val$gkey=".intval($average_call_duration)."&";
-                    $query_hold.="var$gkey=$key&val$gkey=".intval($average_hold_duration)."&";
+                    $chart_labels[] = "$key ".$lang["$language"]['hours'];
+                    $chart_ans[]    = $ans_by_hour["$key"];
+                    $chart_unans[]  = $unans_by_hour["$key"];
+                    $chart_time[]   = intval($average_call_duration);
+                    $chart_hold[]   = intval($average_hold_duration);
                     $data_pdf[]=$linea_pdf;
                 }
-                $query_ans.="title=".$lang["$language"]['answ_by_hour']."$graphcolor";
-                $query_unans.="title=".$lang["$language"]['unansw_by_hour']."$graphcolor";
-                $query_time.="title=".$lang["$language"]['avg_call_time_by_hr']."$graphcolor";
-                $query_hold.="title=".$lang["$language"]['avg_hold_time_by_hr']."$graphcolor";
-                $query_comb.="title=".$lang["$language"]['anws_unanws_by_hour']."$graphcolorstack&tagA=".$lang["$language"]['answered_calls']."&tagB=".$lang["$language"]['unanswered_calls'];
                 ?>
             </tbody>
             </table>
@@ -389,21 +381,23 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
             <tr>
                 <td style='text-align:center; background-color: #fffdf3;'>
                     <?php
-                    swf_bar($query_comb,'718','433',"chart1",1);
+                    chart_bar("chart1", $lang["$language"]['anws_unanws_by_hour'], $chart_labels,
+                        array($lang["$language"]['answered_calls']=>$chart_ans, $lang["$language"]['unanswered_calls']=>$chart_unans),
+                        array('stacked'=>true, 'wide'=>true));
                     ?>
                 </td>
             </tr>
             <tr>
                 <td style='text-align:center; background-color: #fffdf3;'>
                     <?php
-                    swf_bar($query_time,'718','433',"chart3",0);
+                    chart_bar("chart3", $lang["$language"]['avg_call_time_by_hr'], $chart_labels, array($lang["$language"]['seconds']=>$chart_time), array('wide'=>true));
                     ?>
                 </td>
             </tr>
             <tr>
                 <td style='text-align:center; background-color: #fffdf3;'>
                     <?php
-                    swf_bar($query_hold,'718','433',"chart4",0);
+                    chart_bar("chart4", $lang["$language"]['avg_hold_time_by_hr'], $chart_labels, array($lang["$language"]['seconds']=>$chart_hold), array('wide'=>true));
                     ?>
                 </td>
             </tr>
@@ -445,10 +439,11 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
                 $data_pdf = array();
 
 
-                $query_ans="";
-                $query_unans="";
-                $query_time="";
-                $query_hold="";
+                $chart_labels = array();
+                $chart_ans    = array();
+                $chart_unans  = array();
+                $chart_time   = array();
+                $chart_hold   = array();
                 for($key=0;$key<7;$key++) {
                     $cual = ($key+1)%2;
                     if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
@@ -503,17 +498,13 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
                     echo "<td>".$login_by_dw["$key"]."</td>\n";
                     echo "<td>".$logout_by_dw["$key"]."</td>\n";
                     echo "</tr>\n";
-                    $gkey = $key + 1;
-                    $query_ans  .="var$gkey=".$dayp["$key"]."&val$gkey=".intval($ans_by_dw["$key"])."&";
-                    $query_unans.="var$gkey=".$dayp["$key"]."&val$gkey=".intval($unans_by_dw["$key"])."&";
-                    $query_time.="var$gkey=".$dayp["$key"]."&val$gkey=".intval($average_call_duration)."&";
-                    $query_hold.="var$gkey=".$dayp["$key"]."&val$gkey=".intval($average_hold_duration)."&";
+                    $chart_labels[] = $dayp["$key"];
+                    $chart_ans[]    = intval($ans_by_dw["$key"]);
+                    $chart_unans[]  = intval($unans_by_dw["$key"]);
+                    $chart_time[]   = intval($average_call_duration);
+                    $chart_hold[]   = intval($average_hold_duration);
                     $data_pdf[]=$linea_pdf;
                 }
-                $query_ans.="title=".$lang["$language"]['answ_by_day']."$graphcolor";
-                $query_unans.="title=".$lang["$language"]['unansw_by_day']."$graphcolor";
-                $query_time.="title=".$lang["$language"]['avg_call_time_by_day']."$graphcolor";
-                $query_hold.="title=".$lang["$language"]['avg_hold_time_by_day']."$graphcolor";
                 ?>
             </tbody>
             </table>
@@ -527,24 +518,24 @@ $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
             <tr>
                 <td style='text-align:center; background-color: #fffdf3;'>
                     <?php
-                    swf_bar($query_ans,359,217,"chart5",0);
+                    chart_bar("chart5", $lang["$language"]['answ_by_day'], $chart_labels, array($lang["$language"]['Calls']=>$chart_ans));
                     ?>
                 </td>
                 <td style='text-align:center; background-color: #fffdf3;'>
                     <?php
-                    swf_bar($query_unans,359,217,"chart6",0);
+                    chart_bar("chart6", $lang["$language"]['unansw_by_day'], $chart_labels, array($lang["$language"]['Calls']=>$chart_unans));
                     ?>
                 </td>
             </tr>
             <tr>
                 <td style='text-align:center; background-color: #fffdf3;'>
                     <?php
-                    swf_bar($query_time,359,217,"chart7",0);
+                    chart_bar("chart7", $lang["$language"]['avg_call_time_by_day'], $chart_labels, array($lang["$language"]['seconds']=>$chart_time));
                     ?>
                 </td>
                 <td style='text-align:center; background-color: #fffdf3;'>
                     <?php
-                    swf_bar($query_hold,359,217,"chart8",0);
+                    chart_bar("chart8", $lang["$language"]['avg_hold_time_by_day'], $chart_labels, array($lang["$language"]['seconds']=>$chart_hold));
                     ?>
                 </td>
             </tr>
