@@ -26,73 +26,12 @@ if(isset($_SESSION['QSTATS']['hideloggedoff'])) {
 } else {
     $ocultar="false";
 }
-$page_scripts = array("js/sorttable.js", "js/prototype-1.4.0.js");
+$page_scripts = array("js/realtime.js");
 include("header.php");
 ?>
-<script>
-		Event.observe(window, 'load', init, false);
-		function init(){
-			getdata();
-		}
-		function getdata(){
- 		    var url = 'auxstate_helper.php';
-		    var target = 'content_refresh';
-		    var myAjax = new Ajax.PeriodicalUpdater(target, url, {asynchronous:true, frequency:5});
-		}
-		function sethide(elemento) {
-		   var url  = 'set_sesvar.php';
-                   if(elemento.checked==true) {
-		   	var pars = 'sesvar=hideloggedoff&value=true';
-		    } else {
-		   	var pars = 'sesvar=hideloggedoff&value=false';
-                    }
-			var myAjax = new Ajax.Request(
-				url, 
-				{
-				method: 'get', 
-				parameters: pars
-				});
-                }
- 
-	</script>
+<h2><?php echo $lang[$language]['current_agent_status']; ?></h2>
 
-<div style='min-width: 870px'>
-
-<?php
-echo "<h2>".$lang[$language]['current_agent_status']."</h2>";
-
-/*
-// Populates an array with the EVENTS ids
-$query = "SELECT * FROM qevent ORDER BY event_id";
-$res = consulta_db($query,0,0);
-while($row = db_fetch_row($res)) {
-        $event_array["$row[0]"] = $row[1];
-}
-
-
-$color['unavailable']="#dadada";
-$color['available']="#00ff00";
-
-for($a=1;$a<10;$a++) {
-    $b=$a-1;
-    $color[$a]=$auxcolor[$b];
-}
-
-
-
-$popup['unavailable']="Logged off";
-$popup['available']="Staffed";
-for($a=1;$a<10;$a++) {
-    $b=$a-1;
-    $popup["$a"]=$aux[$b];
-}
-*/
-?>
-
-<div id='content_refresh'>
+<div id='content_refresh' data-url='auxstate_helper.php' data-interval='5000' aria-live='polite'>
 </div>
 
-
-
-</div>
 <?php include("footer.php"); ?>

@@ -62,9 +62,9 @@ foreach ($queues as $key=>$val) {
   $queue[] = $key;
 }
 
-echo "<input type=checkbox name='hidelogedoff' onClick='sethide(this)' ";
-if($ocultar=="true") echo " checked ";
-echo "> ".$lang[$language]['hide_loggedoff']."\n";
+echo "<label class='toggle'><input type='checkbox' data-hide-loggedoff";
+if($ocultar=="true") echo " checked";
+echo "> ".$lang[$language]['hide_loggedoff']."</label>\n";
 
 include("realtime_agents.php");
 include("realtime_qsummary.php");

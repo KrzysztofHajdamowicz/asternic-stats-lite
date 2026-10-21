@@ -77,8 +77,8 @@ foreach($queue as $qn) {
                 if($last<>"") { $last=$last." ".$lang[$language]['min_ago']; } else { $last = $lang[$language]['no_info']; }
                 $agent_name = agent_name($aname);
                 echo "<tr $odd>";
-                echo "<td width=200>$qn</td>";
-                echo "<td width=200>$agent_name</td>";
+                echo "<td>".h($qn)."</td>";
+                echo "<td>".h($agent_name)."</td>";
 
                 if($stat<>"") $aval="paused";
 
@@ -89,10 +89,10 @@ foreach($queue as $qn) {
                 $aval2 = preg_replace("/ /","_",$aval);
                 $mystringaval = $lang[$language][$aval2] ?? '';
 				if($mystringaval=="") $mystringaval = $aval;
-                echo "<td><div style='float: left; background: ".($color[$aval] ?? '#dadada')."; width: 1em;'>&nbsp;</div>&nbsp; $mystringaval";
+                echo "<td><span class='status-dot' style='background: ".($color[$aval] ?? '#dadada').";'></span> ".h($mystringaval);
                 echo "</td>";
-                echo "<td>$dur</td>";
-                echo "<td>$clid</td>";
+                echo "<td>".h($dur)."</td>";
+                echo "<td>".h($clid)."</td>";
                 echo "<td>$last</td>";
                 echo "</tr>";
                 $contador++;

@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="css/table.css">
   <link rel="stylesheet" href="css/fixed-all.css">
 <?php foreach (($page_scripts ?? array()) as $script) { ?>
-  <script src="<?php echo h($script); ?>"></script>
+  <script src="<?php echo h($script); ?>" defer></script>
 <?php } ?>
 </head>
 <body>

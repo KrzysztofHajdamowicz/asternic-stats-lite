@@ -45,7 +45,7 @@ foreach($queue as $elementq) {
             }
 
             if($contador%2) { $odd="class='odd'"; } else { $odd=""; }
-            echo "<tr $odd><td>$qt</td>";
+            echo "<tr $odd><td>".h($qt)."</td>";
 
             $datos = get_queue_numbers($elementq);
             if(is_array($datos)) {

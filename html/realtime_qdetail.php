@@ -37,9 +37,9 @@ foreach($queue as $qn) {
             echo "</thead>\n";
             echo "<tbody>\n";
         }
-        echo "<tr><td>$qn</td><td>$position</td>";
-        echo "<td>".$queues[$qn]['calls'][$key]['chaninfo']['callerid']."</td>";
-        echo "<td>".$queues[$qn]['calls'][$key]['chaninfo']['duration_str']." min</td>";
+        echo "<tr><td>".h($qn)."</td><td>$position</td>";
+        echo "<td>".h($queues[$qn]['calls'][$key]['chaninfo']['callerid'])."</td>";
+        echo "<td>".h($queues[$qn]['calls'][$key]['chaninfo']['duration_str'])." min</td>";
         echo "</tr>";
         $position++;
     }
