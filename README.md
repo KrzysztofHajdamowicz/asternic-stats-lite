@@ -161,7 +161,7 @@ docker buildx imagetools inspect ghcr.io/krzysztofhajdamowicz/asternic-web:lates
 **Dependabot** opens weekly pull requests for the base images
 (`docker/web`, `docker/parselog`, `parselogd`), Go modules and GitHub
 Actions. Patch and minor updates are merged automatically once CI is
-green.
+green, except bumps of the `php` base image, which need a review.
 
 ## Manual installation (without Docker)
 
