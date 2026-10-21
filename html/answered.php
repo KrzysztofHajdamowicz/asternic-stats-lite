@@ -227,381 +227,274 @@ $cover_pdf.= $lang["$language"]['total'].": ".$total_duration_print." ".$lang["$
 $cover_pdf.= $lang["$language"]['avg_holdtime'].": ".$average_hold." ".$lang["$language"]['secs']."\n";
 
 ?>
-        <table style="width: 99%; border-collapse: separate; border-spacing: 1px;">
+<div class="summary">
+    <section class="card">
+        <h2><?php echo $lang["$language"]['report_info']?></h2>
+        <dl class="kv">
+            <dt><?php echo $lang["$language"]['queue']?></dt>
+            <dd><?php echo h($queue)?></dd>
+            <dt><?php echo $lang["$language"]['start']?></dt>
+            <dd><?php echo h($start_parts[0])?></dd>
+            <dt><?php echo $lang["$language"]['end']?></dt>
+            <dd><?php echo h($end_parts[0])?></dd>
+            <dt><?php echo $lang["$language"]['period']?></dt>
+            <dd><?php echo $period?> <?php echo $lang["$language"]['days']?></dd>
+        </dl>
+    </section>
+    <section class="card">
+        <h2><?php echo $lang["$language"]['answered_calls']?></h2>
+        <dl class="kv">
+            <dt><?php echo $lang["$language"]['answered_calls']?></dt>
+            <dd><?php echo $total_calls?> <?php echo $lang["$language"]['calls']?></dd>
+            <dt><?php echo $lang["$language"]['transferred_calls']?></dt>
+            <dd><?php echo $transferidas?> <?php echo $lang["$language"]['calls']?></dd>
+            <dt><?php echo $lang["$language"]['avg_calltime']?></dt>
+            <dd><?php echo $average_duration?> <?php echo $lang["$language"]['secs']?></dd>
+            <dt><?php echo $lang["$language"]['total']?> <?php echo $lang["$language"]['calltime']?></dt>
+            <dd><?php echo $total_duration_print?> <?php echo $lang["$language"]['minutes']?></dd>
+            <dt><?php echo $lang["$language"]['avg_holdtime']?></dt>
+            <dd><?php echo $average_hold?> <?php echo $lang["$language"]['secs']?></dd>
+        </dl>
+    </section>
+</div>
+
+<section class="report" id="1">
+    <h2><?php echo $lang["$language"]['answered_calls_by_agent']?></h2>
+    <div class="table-wrap">
+    <table class="data sortable" id="table1">
         <thead>
         <tr>
-            <td style="width: 50%; vertical-align: top;">
-                <table style='width: 100%; border: 0; border-collapse: collapse; border-spacing: 0;'>
-                <caption><?php echo $lang["$language"]['report_info']?></caption>
-                <tbody>
-                <tr>
-                    <td><?php echo $lang["$language"]['queue']?>:</td>
-                    <td><?php echo $queue?></td>
-                </tr>
-                <tr>
-                       <td><?php echo $lang["$language"]['start']?>:</td>
-                       <td><?php echo $start_parts[0]?></td>
-                </tr>
-                <tr>
-                       <td><?php echo $lang["$language"]['end']?>:</td>
-                       <td><?php echo $end_parts[0]?></td>
-                </tr>
-                <tr>
-                       <td><?php echo $lang["$language"]['period']?>:</td>
-                       <td><?php echo $period?> <?php echo $lang["$language"]['days']?></td>
-                </tr>
-                </tbody>
-                </table>
-
-            </td>
-            <td style="width: 50%; vertical-align: top;">
-                <table style='width: 100%; border: 0; border-collapse: collapse; border-spacing: 0;'>
-                <caption><?php echo $lang["$language"]['answered_calls']?></caption>
-                <tbody>
-                <tr> 
-                  <td><?php echo $lang["$language"]['answered_calls']?></td>
-                  <td><?php echo $total_calls?> <?php echo $lang["$language"]['calls']?></td>
-                </tr>
-                <tr> 
-                  <td><?php echo $lang["$language"]['transferred_calls']?></td>
-                  <td><?php echo $transferidas?> <?php echo $lang["$language"]['calls']?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['avg_calltime']?>:</td>
-                  <td><?php echo $average_duration?> <?php echo $lang["$language"]['secs']?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['total']?> <?php echo $lang["$language"]['calltime']?>:</td>
-                  <td><?php echo $total_duration_print?> <?php echo $lang["$language"]['minutes']?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['avg_holdtime']?>:</td>
-                  <td><?php echo $average_hold?> <?php echo $lang["$language"]['secs']?></td>
-                </tr>
-                </tbody>
-              </table>
-            </td>
+            <th><?php echo $lang["$language"]['agent']?></th>
+            <th><?php echo $lang["$language"]['Calls']?></th>
+            <th><?php echo $lang["$language"]['percent']?> <?php echo $lang["$language"]['Calls']?></th>
+            <th><?php echo $lang["$language"]['calltime']?></th>
+            <th><?php echo $lang["$language"]['percent']?> <?php echo $lang["$language"]['calltime']?></th>
+            <th><?php echo $lang["$language"]['avg']?> <?php echo $lang["$language"]['calltime']?></th>
+            <th><?php echo $lang["$language"]['holdtime']?></th>
+            <th><?php echo $lang["$language"]['avg']?> <?php echo $lang["$language"]['holdtime']?></th>
         </tr>
         </thead>
-        </table>
-        <br/>    
-        <a id='1'></a>
-        <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" class='sortable' id='table1' >
-        <caption>
-        <a href='#0'><img alt='go up' src='images/go-up.png' class='icon' width=16 height=16 
-        <?php 
-        tooltip($lang["$language"]['gotop']);
-        ?> 
-        ></a>&nbsp;&nbsp;
-        <?php echo $lang["$language"]['answered_calls_by_agent']?>
-        </caption>
-            <thead>
-            <tr>
-                  <th><?php echo $lang["$language"]['agent']?></th>
-                  <th><?php echo $lang["$language"]['Calls']?></th>
-                  <th><?php echo $lang["$language"]['percent']?> <?php echo $lang["$language"]['Calls']?></th>
-                  <th><?php echo $lang["$language"]['calltime']?></th>
-                  <th><?php echo $lang["$language"]['percent']?> <?php echo $lang["$language"]['calltime']?></th>
-                  <th><?php echo $lang["$language"]['avg']?> <?php echo $lang["$language"]['calltime']?></th>
-                  <th><?php echo $lang["$language"]['holdtime']?></th>
-                  <th><?php echo $lang["$language"]['avg']?> <?php echo $lang["$language"]['holdtime']?></th>
-            </tr>
-            </thead>
-            <tbody>
-                <?php
-                $header_pdf=array($lang["$language"]['agent'],$lang["$language"]['Calls'],$lang["$language"]['percent'],$lang["$language"]['calltime'],$lang["$language"]['percent'],$lang["$language"]['avg'],$lang["$language"]['holdtime'],$lang["$language"]['avg']);
-                $width_pdf=array(25,23,23,23,23,25,25,20);
-                $title_pdf=$lang["$language"]['answered_calls_by_agent'];
+        <tbody>
+        <?php
+        $header_pdf=array($lang["$language"]['agent'],$lang["$language"]['Calls'],$lang["$language"]['percent'],$lang["$language"]['calltime'],$lang["$language"]['percent'],$lang["$language"]['avg'],$lang["$language"]['holdtime'],$lang["$language"]['avg']);
+        $width_pdf=array(25,23,23,23,23,25,25,20);
+        $title_pdf=$lang["$language"]['answered_calls_by_agent'];
 
-                $contador=0;
-                $chart_agents = array();
-                $chart_time   = array();
-                $chart_calls  = array();
-                $data_pdf = array();
-                if(count($total_calls2)>0) {
-                foreach($total_calls2 as $agent=>$val) {
-                    $contavar = $contador +1;
-                    $cual = $contador % 2;
-                    if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
-                    $chart_agents[] = $agent;
-                    $chart_time[]   = $total_time2["$agent"];
-                    $chart_calls[]  = $val;
+        $chart_agents = array();
+        $chart_time   = array();
+        $chart_calls  = array();
+        $data_pdf = array();
+        foreach($total_calls2 as $agent=>$val) {
+            $chart_agents[] = $agent;
+            $chart_time[]   = $total_time2["$agent"];
+            $chart_calls[]  = $val;
 
-                    $time_print = seconds2minutes($total_time2["$agent"]);
-                    $avg_time = $total_time2["$agent"] / $val;
-                    $avg_time = round($avg_time,2);
+            $time_print = seconds2minutes($total_time2["$agent"]);
+            $avg_time = $total_time2["$agent"] / $val;
+            $avg_time = round($avg_time,2);
+            $avg_print = seconds2minutes($avg_time);
 
-                    $avg_print = seconds2minutes($avg_time);
-
-                    echo "<tr $odd>\n";
-                    echo "<td>$agent</td>\n";
-                    echo "<td>$val</td>\n";
-                    if($grandtotal_calls > 0) {
-                       $percentage_calls = $val * 100 / $grandtotal_calls;
-                    } else {
-                       $percentage_calls = 0;
-                    }
-                    $percentage_calls = number_format($percentage_calls,2);
-                    echo "<td>$percentage_calls ".$lang["$language"]['percent']."</td>\n";
-                    echo "<td>$time_print ".$lang["$language"]['minutes']."</td>\n";
-                    if($grandtotal_time > 0) {
-                       $percentage_time = $total_time2["$agent"] * 100 / $grandtotal_time;
-                    } else {
-                       $percentage_time = 0;
-                    }
-                    $percentage_time = number_format($percentage_time,2);
-                    echo "<td>$percentage_time ".$lang["$language"]['percent']."</td>\n";
-                    //echo "<td>$avg_time ".$lang["$language"]['secs']."</td>\n";
-                    echo "<td>$avg_print ".$lang["$language"]['minutes']."</td>\n";
-                    echo "<td>".$total_hold2["$agent"]." ".$lang["$language"]['secs']."</td>\n";
-                    $avg_hold = $total_hold2["$agent"] / $val;
-                    $avg_hold = number_format($avg_hold,2);
-                    echo "<td>$avg_hold ".$lang["$language"]['secs']."</td>\n";
-                    echo "</tr>\n";
-
-                    $linea_pdf = array($agent,$val,"$percentage_calls ".$lang["$language"]['percent'],$total_time2["$agent"],"$percentage_time ".$lang["$language"]['percent'],"$avg_time ".$lang["$language"]['secs'],$total_hold2["$agent"]." ".$lang["$language"]['secs'], "$avg_hold ".$lang["$language"]['secs']);
-                       $data_pdf[]=$linea_pdf;
-                    $contador++;
-                }
-                }
-                ?>
-            </tbody>
-        </table>
-            <?php if(count($total_calls2)>0) {
-                print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf);
-                }
-            ?>
-
-        <br/>    
-            <?php
-            if(count($total_calls2)>0) {
-                echo "<div class='charts'>\n";
-                chart_bar("chart1", $lang["$language"]['total_time_agent'], $chart_agents, array($lang["$language"]['seconds']=>$chart_time));
-                chart_bar("chart2", $lang["$language"]['no_calls_agent'], $chart_agents, array($lang["$language"]['Calls']=>$chart_calls));
-                echo "</div>\n";
+            if($grandtotal_calls > 0) {
+                $percentage_calls = $val * 100 / $grandtotal_calls;
+            } else {
+                $percentage_calls = 0;
             }
-            ?>
-
-            <a id='2'></a>
-            <table style='width: 99%; border-collapse: separate; border-spacing: 1px;'>
-            <caption>
-            <a href='#0'><img alt='go up' src='images/go-up.png' class='icon' width=16 height=16 
-            <?php 
-            tooltip($lang["$language"]['gotop']);
-            ?>
-            ></a>&nbsp;&nbsp;
-            <?php echo $lang["$language"]['call_response']?></caption>
-            <thead>
-            <tr>
-            <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
-                <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" class='sortable' id='table2' >
-                <thead>
-                <tr> 
-                  <th><?php echo $lang["$language"]['answer']?></th>
-                  <th><?php echo $lang["$language"]['count']?></th>
-                  <th><?php echo $lang["$language"]['delta']?></th>
-                  <th><?php echo $lang["$language"]['percent']?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                $countrow=0;
-                $partial_total = 0;
-                $chart_labels = array();
-                $chart_values = array();
-                $total_y_transfer = $answer['15'] + $answer['30'] +  $answer['45'] + $answer['60'] +  $answer['75'] + $answer['90'] +  $answer['91+'];
-                foreach($answer as $key=>$val)
-                {
-                    $newcont = $countrow+1;
-                    $chart_labels[] = "$key ".$lang["$language"]['secs'];
-                    $chart_values[] = $val;
-                    $cual = ($countrow%2);
-                    if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
-                    echo "<tr $odd>\n";
-                    echo "<td>".$lang["$language"]['within']."$key ".$lang["$language"]['secs']."</td>\n";
-                    $delta = $val;
-                    if($delta > 0) { $delta = "+".$delta;}
-                    $partial_total += $val;
-                    if($total_y_transfer > 0) {
-                    $percent=$partial_total*100/$total_y_transfer;
-                    } else {
-                    $percent = 0;
-                    }
-                    $percent=number_format($percent,2);
-                    if($countrow==0) { $delta = ""; }
-                    echo "<td>$partial_total ".$lang["$language"]['calls']."</td>\n";
-                    echo "<td>$delta</td>\n";
-                    echo "<td>$percent ".$lang["$language"]['percent']."</td>\n";
-                    echo "</tr>\n";
-                    $countrow++;
-                }
-                ?>
-                </tbody>
-              </table>
-              </td>
-                <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
-                <?php
-                chart_bar("chart3", $lang["$language"]['call_response'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
-                ?>
-                </td>
-            </tr>
-            </thead>
-          </table>
-          <br/>
-            <a id='3'></a>
-            <table style='width: 99%; border-collapse: separate; border-spacing: 1px;'>
-            <caption>
-            <a href='#0'><img alt='go up' src='images/go-up.png' class='icon' width=16 height=16 
-
-            <?php 
-            tooltip($lang["$language"]['gotop']);
-            ?>
-            ></a>&nbsp;&nbsp;
-            <?php echo $lang["$language"]['answered_calls_by_queue']?></caption>
-            <thead>
-            <tr>
-              <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
-                <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" class='sortable' id='table3' >
-                <thead>
-                <tr> 
-                    <th><?php echo $lang["$language"]['queue']?></th>
-                    <th><?php echo $lang["$language"]['count']?></th>
-                    <th><?php echo $lang["$language"]['percent']?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                $countrow=0;
-                $chart_labels = array();
-                $chart_values = array();
-                if(count($total_calls_queue)==0) {
-                        $total_calls_queue[""]=0;
-                }
-                asort($total_calls_queue);
-                foreach($total_calls_queue as $key=>$val) {
-                    $cual = $countrow%2;
-                    if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
-                    if($total_calls>0) {
-                    $percent = $val * 100 / $total_calls;
-                    } else {
-                    $percent=0;
-                    }
-                    $percent =number_format($percent,2);
-                    echo "<tr $odd><td>$key</td><td>$val ".$lang["$language"]['calls']."</td><td>$percent %</td></tr>\n";
-                    $countrow++;
-                    $chart_labels[] = $key;
-                    $chart_values[] = $val;
-                }
-                ?>
-              </tbody>
-              </table>
-            </td>
-            <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
-                <?php 
-                if ($countrow>1) {
-                    chart_bar("chart4", $lang["$language"]['answered_calls_by_queue'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
-                   } 
-                ?>
-            </td>
-            </tr>
-            </thead>
-            </table>
-            <br/>
-
-            <a id='4'></a>
-            <table style='width: 99%; border-collapse: separate; border-spacing: 1px;'>
-            <caption>
-            <a href='#0'><img alt='go up' src='images/go-up.png' class='icon' width=16 height=16 
-
-            <?php 
-            tooltip($lang["$language"]['gotop']);
-            ?>
-            ></a>&nbsp;&nbsp;
-            <?php echo $lang["$language"]['disconnect_cause']?></caption>
-            <thead>
-            <tr>
-              <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
-                <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" class='sortable' id='table4' >
-                <thead>
-                <tr>
-                    <th><?php echo $lang["$language"]['cause']?></th>
-                    <th><?php echo $lang["$language"]['count']?></th>
-                    <th><?php echo $lang["$language"]['count']?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr> 
-                  <td><?php echo $lang["$language"]['agent_hungup']?>:</td>
-                  <td><?php echo $hangup_cause["COMPLETEAGENT"]?> <?php echo $lang["$language"]['calls']?></td>
-                  <td>
-                      <?php
-                        if($total_hangup > 0 ) {
-                            $percent=$hangup_cause["COMPLETEAGENT"]*100/$total_hangup;
-                        } else {
-                            $percent=0;
-                        }
-                        $percent=number_format($percent,2);
-                        echo $percent;
-                      ?> 
-                   <?php echo $lang["$language"]['percent']?></td>
-                </tr>
-                <tr> 
-                  <td><?php echo $lang["$language"]['caller_hungup']?>:</td>
-                  <td><?php echo $hangup_cause['COMPLETECALLER']?> <?php echo $lang["$language"]['calls']?></td>
-                  <td>
-                      <?php
-                        if($total_hangup > 0 ) {
-                            $percent=$hangup_cause["COMPLETECALLER"]*100/$total_hangup;
-                        } else {
-                            $percent=0;
-                        }
-                        $percent=number_format($percent,2);
-                        echo $percent;
-                      ?> 
-                    <?php echo $lang["$language"]['percent']?></td>
-                </tr>
-                </tbody>
-              </table>
-            </td>
-            <td style='text-align:center; background-color: #fffdf3; width: 100%;'>
-                <?php
-                chart_bar("chart5", $lang["$language"]['disconnect_cause'],
-                    array($lang["$language"]['agent'], $lang["$language"]['caller']),
-                    array($lang["$language"]['Calls']=>array($hangup_cause["COMPLETEAGENT"], $hangup_cause["COMPLETECALLER"])));
-                ?>
-            </td>
-            </tr>
-            </thead>
-            </table>
-
-            <br/>
-
-            <?php
-            if($totaltransfers>0) {
-            ?>
-            <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" class='sortable' id='table5' >
-            <caption><?php echo $lang["$language"]['transfers']?></caption>
-            <thead>
-            <tr>
-                 <th><?php echo $lang["$language"]['agent']?></th>
-                 <th><?php echo $lang["$language"]['to']?></th>
-                 <th><?php echo $lang["$language"]['count']?></th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php
-            foreach($transfers as $key=>$val) {
-                $partes = preg_split("/\^/",$key);
-                $agent = $partes[0];
-                $extension = $partes[1];
-                echo "<tr>\n";
-                echo "<td style='padding:0;'>$agent</td>\n";
-                echo "<td style='padding:0;'>$extension</td>\n";
-                echo "<td style='padding:0;'>$val</td>\n";
-                echo "</tr>";
+            $percentage_calls = number_format($percentage_calls,2);
+            if($grandtotal_time > 0) {
+                $percentage_time = $total_time2["$agent"] * 100 / $grandtotal_time;
+            } else {
+                $percentage_time = 0;
             }
-            ?>
-            </tbody>
-            </table>
-        <?php } ?>
+            $percentage_time = number_format($percentage_time,2);
+            $avg_hold = $total_hold2["$agent"] / $val;
+            $avg_hold = number_format($avg_hold,2);
+
+            echo "<tr>\n";
+            echo "<td>".h($agent)."</td>\n";
+            echo "<td>$val</td>\n";
+            echo "<td>$percentage_calls ".$lang["$language"]['percent']."</td>\n";
+            echo "<td>$time_print ".$lang["$language"]['minutes']."</td>\n";
+            echo "<td>$percentage_time ".$lang["$language"]['percent']."</td>\n";
+            echo "<td>$avg_print ".$lang["$language"]['minutes']."</td>\n";
+            echo "<td>".$total_hold2["$agent"]." ".$lang["$language"]['secs']."</td>\n";
+            echo "<td>$avg_hold ".$lang["$language"]['secs']."</td>\n";
+            echo "</tr>\n";
+
+            $linea_pdf = array($agent,$val,"$percentage_calls ".$lang["$language"]['percent'],$total_time2["$agent"],"$percentage_time ".$lang["$language"]['percent'],"$avg_time ".$lang["$language"]['secs'],$total_hold2["$agent"]." ".$lang["$language"]['secs'], "$avg_hold ".$lang["$language"]['secs']);
+            $data_pdf[]=$linea_pdf;
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    if(count($total_calls2)>0) {
+        print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf);
+        echo "<div class='charts'>\n";
+        chart_bar("chart1", $lang["$language"]['total_time_agent'], $chart_agents, array($lang["$language"]['seconds']=>$chart_time));
+        chart_bar("chart2", $lang["$language"]['no_calls_agent'], $chart_agents, array($lang["$language"]['Calls']=>$chart_calls));
+        echo "</div>\n";
+    }
+    ?>
+</section>
+
+<section class="report" id="2">
+    <h2><?php echo $lang["$language"]['call_response']?></h2>
+    <div class="split">
+    <div class="table-wrap">
+    <table class="data sortable" id="table2">
+        <thead>
+        <tr>
+            <th><?php echo $lang["$language"]['answer']?></th>
+            <th><?php echo $lang["$language"]['count']?></th>
+            <th><?php echo $lang["$language"]['delta']?></th>
+            <th><?php echo $lang["$language"]['percent']?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        $countrow=0;
+        $partial_total = 0;
+        $chart_labels = array();
+        $chart_values = array();
+        $total_y_transfer = $answer['15'] + $answer['30'] +  $answer['45'] + $answer['60'] +  $answer['75'] + $answer['90'] +  $answer['91+'];
+        foreach($answer as $key=>$val) {
+            $chart_labels[] = "$key ".$lang["$language"]['secs'];
+            $chart_values[] = $val;
+            $delta = $val;
+            if($delta > 0) { $delta = "+".$delta;}
+            $partial_total += $val;
+            if($total_y_transfer > 0) {
+                $percent=$partial_total*100/$total_y_transfer;
+            } else {
+                $percent = 0;
+            }
+            $percent=number_format($percent,2);
+            if($countrow==0) { $delta = ""; }
+            echo "<tr>\n";
+            echo "<td>".$lang["$language"]['within']."$key ".$lang["$language"]['secs']."</td>\n";
+            echo "<td>$partial_total ".$lang["$language"]['calls']."</td>\n";
+            echo "<td>$delta</td>\n";
+            echo "<td>$percent ".$lang["$language"]['percent']."</td>\n";
+            echo "</tr>\n";
+            $countrow++;
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    chart_bar("chart3", $lang["$language"]['call_response'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
+    ?>
+    </div>
+</section>
+
+<section class="report" id="3">
+    <h2><?php echo $lang["$language"]['answered_calls_by_queue']?></h2>
+    <div class="split">
+    <div class="table-wrap">
+    <table class="data sortable" id="table3">
+        <thead>
+        <tr>
+            <th><?php echo $lang["$language"]['queue']?></th>
+            <th><?php echo $lang["$language"]['count']?></th>
+            <th><?php echo $lang["$language"]['percent']?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        $countrow=0;
+        $chart_labels = array();
+        $chart_values = array();
+        if(count($total_calls_queue)==0) {
+            $total_calls_queue[""]=0;
+        }
+        asort($total_calls_queue);
+        foreach($total_calls_queue as $key=>$val) {
+            if($total_calls>0) {
+                $percent = $val * 100 / $total_calls;
+            } else {
+                $percent=0;
+            }
+            $percent =number_format($percent,2);
+            echo "<tr><td>".h($key)."</td><td>$val ".$lang["$language"]['calls']."</td><td>$percent %</td></tr>\n";
+            $countrow++;
+            $chart_labels[] = $key;
+            $chart_values[] = $val;
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    if ($countrow>1) {
+        chart_bar("chart4", $lang["$language"]['answered_calls_by_queue'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
+    }
+    ?>
+    </div>
+</section>
+
+<section class="report" id="4">
+    <h2><?php echo $lang["$language"]['disconnect_cause']?></h2>
+    <div class="split">
+    <div class="table-wrap">
+    <table class="data sortable" id="table4">
+        <thead>
+        <tr>
+            <th><?php echo $lang["$language"]['cause']?></th>
+            <th><?php echo $lang["$language"]['count']?></th>
+            <th><?php echo $lang["$language"]['percent']?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        $causes = array(
+            'COMPLETEAGENT'  => $lang["$language"]['agent_hungup'],
+            'COMPLETECALLER' => $lang["$language"]['caller_hungup'],
+        );
+        foreach($causes as $event=>$label) {
+            if($total_hangup > 0) {
+                $percent = $hangup_cause[$event]*100/$total_hangup;
+            } else {
+                $percent = 0;
+            }
+            $percent = number_format($percent,2);
+            echo "<tr><td>$label</td><td>".$hangup_cause[$event]." ".$lang["$language"]['calls']."</td><td>$percent ".$lang["$language"]['percent']."</td></tr>\n";
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    chart_bar("chart5", $lang["$language"]['disconnect_cause'],
+        array($lang["$language"]['agent'], $lang["$language"]['caller']),
+        array($lang["$language"]['Calls']=>array($hangup_cause["COMPLETEAGENT"], $hangup_cause["COMPLETECALLER"])));
+    ?>
+    </div>
+</section>
+
+<?php if($totaltransfers>0) { ?>
+<section class="report">
+    <h2><?php echo $lang["$language"]['transfers']?></h2>
+    <div class="table-wrap">
+    <table class="data sortable" id="table5">
+        <thead>
+        <tr>
+            <th><?php echo $lang["$language"]['agent']?></th>
+            <th><?php echo $lang["$language"]['to']?></th>
+            <th><?php echo $lang["$language"]['count']?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        foreach($transfers as $key=>$val) {
+            $partes = preg_split("/\^/",$key);
+            echo "<tr><td>".h($partes[0])."</td><td>".h($partes[1])."</td><td>$val</td></tr>\n";
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+</section>
+<?php } ?>
 <?php include("footer.php"); ?>

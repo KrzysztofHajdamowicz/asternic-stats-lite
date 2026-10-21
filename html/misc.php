@@ -78,20 +78,20 @@ function print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf) {
 		$width_serial = rawurlencode($width_serial);
 		$title_serial = rawurlencode($title_serial);
 		$cover_serial = rawurlencode($cover_serial);
-		echo "<BR><form method=post action='export.php'>\n";
-		echo $lang["$language"]['export'];
-		echo "<input type='hidden' name='head' value='".$head_serial."' />\n";
-		echo "<input type='hidden' name='rawdata' value='".$data_serial."' />\n";
-		echo "<input type='hidden' name='width' value='".$width_serial."' />\n";
-		echo "<input type='hidden' name='title' value='".$title_serial."' />\n";
-		echo "<input type='hidden' name='cover' value='".$cover_serial."' />\n";
-		echo "<input type=image name='pdf' alt='export to pdf' src='images/pdf.gif' ";
+		echo "<form method='post' action='export.php' class='exports'>\n";
+		echo "<span>".$lang["$language"]['export']."</span>\n";
+		echo "<input type='hidden' name='head' value='".$head_serial."'>\n";
+		echo "<input type='hidden' name='rawdata' value='".$data_serial."'>\n";
+		echo "<input type='hidden' name='width' value='".$width_serial."'>\n";
+		echo "<input type='hidden' name='title' value='".$title_serial."'>\n";
+		echo "<input type='hidden' name='cover' value='".$cover_serial."'>\n";
+		echo "<button type='submit' name='pdf' value='1'";
 		tooltip($lang["$language"]['pdfhelp']);
-		echo ">\n";
-		echo "<input type=image name='csv' alt='export to csv' src='images/excel.gif' "; 
+		echo "><img src='images/pdf.gif' alt=''> PDF</button>\n";
+		echo "<button type='submit' name='csv' value='1'";
 		tooltip($lang["$language"]['csvhelp']);
-		echo ">\n";
-		echo "</form>";
+		echo "><img src='images/excel.gif' alt=''> CSV</button>\n";
+		echo "</form>\n";
 }
 
 // Turns a "'q1','q2'" list coming from the request/session into a list that

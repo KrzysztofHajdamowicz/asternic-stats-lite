@@ -138,3 +138,19 @@ GPL-3.0 license
 ## Support
 
 For advanced features and professional support, consider Asternic Call Center Stats PRO.
+
+## Frontend
+
+The web pages need no build step and load nothing from the internet:
+
+- `html/css/app.css` is the only stylesheet; colours are CSS custom properties
+  and a dark palette is used automatically when the system is in dark mode
+- charts are drawn by [Chart.js](https://www.chartjs.org) 4, vendored in
+  `html/js/vendor/` (to upgrade, replace `chart.umd.min.js` with the file of
+  the same name from the `chart.js` npm package); PHP code calls
+  `chart_bar()` from `html/misc.php` and `html/js/charts.js` draws the result
+- the other scripts in `html/js/` are small plain JavaScript files: report
+  form (`index.js`), realtime polling (`realtime.js`), table sorting
+  (`sortable.js`)
+
+Any current browser works; Internet Explorer is not supported.

@@ -96,186 +96,114 @@ $start_parts = preg_split("/ /", $start);
 $end_parts   = preg_split("/ /", $end);
 
 ?>
-        <table style="width: 99%; border-collapse: separate; border-spacing: 1px;">
+<div class="summary">
+    <section class="card">
+        <h2><?php echo $lang["$language"]['report_info']?></h2>
+        <dl class="kv">
+            <dt><?php echo $lang["$language"]['queue']?></dt>
+            <dd><?php echo h($queue)?></dd>
+            <dt><?php echo $lang["$language"]['start']?></dt>
+            <dd><?php echo h($start_parts[0])?></dd>
+            <dt><?php echo $lang["$language"]['end']?></dt>
+            <dd><?php echo h($end_parts[0])?></dd>
+            <dt><?php echo $lang["$language"]['period']?></dt>
+            <dd><?php echo $period?> <?php echo $lang["$language"]['days']?></dd>
+        </dl>
+    </section>
+    <section class="card">
+        <h2><?php echo $lang["$language"]['unanswered_calls']?></h2>
+        <dl class="kv">
+            <dt><?php echo $lang["$language"]['number_unanswered']?></dt>
+            <dd><?php echo $total_abandon?> <?php echo $lang["$language"]['calls']?></dd>
+            <dt><?php echo $lang["$language"]['avg_wait_before_dis']?></dt>
+            <dd><?php echo $abandon_average_hold?> <?php echo $lang["$language"]['secs']?></dd>
+            <dt><?php echo $lang["$language"]['avg_queue_pos_at_dis']?></dt>
+            <dd><?php echo $abandon_average_end?></dd>
+            <dt><?php echo $lang["$language"]['avg_queue_start']?></dt>
+            <dd><?php echo $abandon_average_start?></dd>
+        </dl>
+    </section>
+</div>
+
+<section class="report" id="1">
+    <h2><?php echo $lang["$language"]['disconnect_cause']?></h2>
+    <div class="split">
+    <div class="table-wrap">
+    <table class="data" id="table1">
         <thead>
         <tr>
-            <td style="width: 50%; vertical-align: top;">
-                <table style='width: 100%; border: 0; border-collapse: collapse; border-spacing: 0;'>
-                <caption><?php echo $lang["$language"]['report_info']?></caption>
-                <tbody>
-                <tr>
-                    <td><?php echo $lang["$language"]['queue']?>:</td>
-                    <td><?php echo $queue?></td>
-                </tr>
-                <tr>
-                    <td><?php echo $lang["$language"]['start']?>:</td>
-                    <td><?php echo $start_parts[0]?></td>
-                </tr>
-                <tr>
-                    <td><?php echo $lang["$language"]['end']?>:</td>
-                    <td><?php echo $end_parts[0]?></td>
-                </tr>
-                <tr>
-                    <td><?php echo $lang["$language"]['period']?>:</td>
-                    <td><?php echo $period?> <?php echo $lang["$language"]['days']?></td>
-                </tr>
-                </tbody>
-                </table>
-
-            </td>
-            <td style="width: 50%; vertical-align: top;">
-                <table style='width: 100%; border: 0; border-collapse: collapse; border-spacing: 0;'>
-                <caption><?php echo $lang["$language"]['unanswered_calls']?></caption>
-                <tbody>
-                <tr> 
-                  <td><?php echo $lang["$language"]['number_unanswered']?>:</td>
-                  <td><?php echo $total_abandon?> <?php echo $lang["$language"]['calls']?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['avg_wait_before_dis']?>:</td>
-                  <td><?php echo $abandon_average_hold?> <?php echo $lang["$language"]['secs']?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['avg_queue_pos_at_dis']?>:</td>
-                  <td><?php echo $abandon_average_end?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['avg_queue_start']?>:</td>
-                  <td><?php echo $abandon_average_start?></td>
-                </tr>
-                </tbody>
-              </table>
-            </td>
+            <th><?php echo $lang["$language"]['cause']?></th>
+            <th><?php echo $lang["$language"]['count']?></th>
+            <th><?php echo $lang["$language"]['percent']?></th>
         </tr>
         </thead>
-        </table>
-        <br/>    
-
-        <a id='1'></a>
-        <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" id='table1' >
-        <caption>
-        <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
-        <?php 
-        tooltip($lang["$language"]['gotop']);
-        ?>
-        ></a>&nbsp;&nbsp;
-        <?php echo $lang["$language"]['disconnect_cause']?>
-        </caption>
-            <thead>
-            <tr>
-              <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
-                <table style="width: 99%; border-collapse: separate; border-spacing: 1px;">
-                <thead>
-                <tr>
-                    <th><?php echo $lang["$language"]['cause']?></th>
-                    <th><?php echo $lang["$language"]['count']?></th>
-                    <th><?php echo $lang["$language"]['percent']?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr> 
-                  <td><?php echo $lang["$language"]['user_abandon']?></td>
-                  <td><?php echo $abandoned?> <?php echo $lang["$language"]['calls']?></td>
-                  <td>
-                      <?php
-                        if($total_abandon > 0 ) {
-                            $percent=$abandoned*100/$total_abandon;
-                        } else {
-                            $percent=0;
-                        }
-                        $percent=number_format($percent,2);
-                        echo $percent;
-                      ?> 
-                   <?php echo $lang["$language"]['percent']?></td>
-                </tr>
-                <tr> 
-                  <td><?php echo $lang["$language"]['timeout']?></td>
-                  <td><?php echo $timeout?> <?php echo $lang["$language"]['calls']?></td>
-                  <td>
-                      <?php
-                        if($total_abandon > 0 ) {
-                            $percent=$timeout*100/$total_abandon;
-                        } else {
-                            $percent=0;
-                        }
-                        $percent=number_format($percent,2);
-                        echo $percent;
-                      ?> 
-                    <?php echo $lang["$language"]['percent']?></td>
-                </tr>
-                </tbody>
-              </table>
-            </td>
-            <td style="text-align: center; background-color: #fffdf3;">
-                <?php
-                chart_bar("chart1", $lang["$language"]['disconnect_cause'],
-                    array($lang["$language"]['abandon'], $lang["$language"]['timeout']),
-                    array($lang["$language"]['Calls']=>array($abandoned, $timeout)));
-                ?>
-            </td>
-            </tr>
-            </thead>
-            </table>
-
-
+        <tbody>
         <?php
-        if(count($abandon_calls_queue)<=0) {
-            $abandon_calls_queue[""]=0;
+        $causes = array(
+            array($lang["$language"]['user_abandon'], $abandoned),
+            array($lang["$language"]['timeout'], $timeout),
+        );
+        foreach($causes as $cause) {
+            if($total_abandon > 0) {
+                $percent = $cause[1]*100/$total_abandon;
+            } else {
+                $percent = 0;
+            }
+            $percent = number_format($percent,2);
+            echo "<tr><td>".$cause[0]."</td><td>".$cause[1]." ".$lang["$language"]['calls']."</td><td>$percent ".$lang["$language"]['percent']."</td></tr>\n";
         }
         ?>
-            <a id='2'></a>
-            <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" id='table2' >
-            <caption>
-            <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
-            <?php 
-            tooltip($lang["$language"]['gotop']);
-            ?>
-            ></a>&nbsp;&nbsp;
-            <?php echo $lang["$language"]['unanswered_calls_qu']?>
-            </caption>
-            <thead>
-            <tr>
-                <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
-                <table style="width: 99%; border-collapse: separate; border-spacing: 1px;">
-                <thead>
-                <tr> 
-                    <th><?php echo $lang["$language"]['queue']?></th>
-                    <th><?php echo $lang["$language"]['count']?></th>
-                    <th><?php echo $lang["$language"]['percent']?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                $countrow=0;
-                $chart_labels = array();
-                $chart_values = array();
-                asort($abandon_calls_queue);
-                foreach($abandon_calls_queue as $key=>$val) {
-                    $cual = $countrow%2;
-                    if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
-                    if($total_abandon > 0 ) {
-                        $percent = $val * 100 / $total_abandon;
-                    } else {
-                        $percent = 0;
-                    }
-                    $percent =number_format($percent,2);
-                    echo "<tr $odd><td>$key</td><td>$val calls</td><td>$percent ".$lang["$language"]['percent']."</td></tr>\n";
-                    $countrow++;
-                    $chart_labels[] = $key;
-                    $chart_values[] = $val;
-                }
-                ?>
-              </tbody>
-              </table>
-            </td>
-            <td style="width: 50%; vertical-align: top; background-color: #fffdf3;">
-                <?php 
-                chart_bar("chart2", $lang["$language"]['unanswered_calls_qu'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
-                ?>
-            </td>
-            </tr>
-            </thead>
-            </table>
-            <br/>
-            <br/>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    chart_bar("chart1", $lang["$language"]['disconnect_cause'],
+        array($lang["$language"]['abandon'], $lang["$language"]['timeout']),
+        array($lang["$language"]['Calls']=>array($abandoned, $timeout)));
+    ?>
+    </div>
+</section>
+
+<?php
+if(count($abandon_calls_queue)<=0) {
+    $abandon_calls_queue[""]=0;
+}
+?>
+<section class="report" id="2">
+    <h2><?php echo $lang["$language"]['unanswered_calls_qu']?></h2>
+    <div class="split">
+    <div class="table-wrap">
+    <table class="data sortable" id="table2">
+        <thead>
+        <tr>
+            <th><?php echo $lang["$language"]['queue']?></th>
+            <th><?php echo $lang["$language"]['count']?></th>
+            <th><?php echo $lang["$language"]['percent']?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        $chart_labels = array();
+        $chart_values = array();
+        asort($abandon_calls_queue);
+        foreach($abandon_calls_queue as $key=>$val) {
+            if($total_abandon > 0) {
+                $percent = $val * 100 / $total_abandon;
+            } else {
+                $percent = 0;
+            }
+            $percent =number_format($percent,2);
+            echo "<tr><td>".h($key)."</td><td>$val ".$lang["$language"]['calls']."</td><td>$percent ".$lang["$language"]['percent']."</td></tr>\n";
+            $chart_labels[] = $key;
+            $chart_values[] = $val;
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    chart_bar("chart2", $lang["$language"]['unanswered_calls_qu'], $chart_labels, array($lang["$language"]['Calls']=>$chart_values));
+    ?>
+    </div>
+</section>
 <?php include("footer.php"); ?>

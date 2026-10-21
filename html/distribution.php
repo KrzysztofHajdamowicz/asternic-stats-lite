@@ -122,424 +122,310 @@ $cover_pdf.= $lang["$language"]['number_unanswered'].": ".$unanswered." ".$lang[
 $cover_pdf.= $lang["$language"]['agent_login'].": ".$login."\n";
 $cover_pdf.= $lang["$language"]['agent_logoff'].": ".$logoff."\n";
 ?>
-        <table style="width: 99%; border-collapse: separate; border-spacing: 1px;">
-        <thead>
-        <tr>
-            <td style="width: 50%; vertical-align: top;">
-                <table style='width: 100%; border: 0; border-collapse: collapse; border-spacing: 0;'>
-                <caption><?php echo $lang["$language"]['report_info']?></caption>
-                <tbody>
-                <tr>
-                    <td><?php echo $lang["$language"]['queue']?>:</td>
-                    <td><?php echo $queue?></td>
-                </tr>
-                <tr>
-                       <td><?php echo $lang["$language"]['start']?>:</td>
-                       <td><?php echo $start_parts[0]?></td>
-                </tr>
-                <tr>
-                       <td><?php echo $lang["$language"]['end']?>:</td>
-                       <td><?php echo $end_parts[0]?></td>
-                </tr>
-                <tr>
-                       <td><?php echo $lang["$language"]['period']?>:</td>
-                       <td><?php echo $period?> <?php echo $lang["$language"]['days']?></td>
-                </tr>
-                </tbody>
-                </table>
+<?php
+// Column headers shared by the three distribution tables
+function distribution_header($first) {
+    global $lang, $language;
+    $keys = array($first,'answered','percent_answered','unanswered','percent_unanswered','avg_calltime','avg_holdtime','login','logoff');
+    $header = array();
+    foreach($keys as $key) {
+        $header[] = $lang["$language"][$key];
+    }
+    return $header;
+}
+function print_header_row($header) {
+    echo "<thead><tr>";
+    foreach($header as $label) {
+        echo "<th>".h($label)."</th>";
+    }
+    echo "</tr></thead>\n";
+}
+?>
+<div class="summary">
+    <section class="card">
+        <h2><?php echo $lang["$language"]['report_info']?></h2>
+        <dl class="kv">
+            <dt><?php echo $lang["$language"]['queue']?></dt>
+            <dd><?php echo h($queue)?></dd>
+            <dt><?php echo $lang["$language"]['start']?></dt>
+            <dd><?php echo h($start_parts[0])?></dd>
+            <dt><?php echo $lang["$language"]['end']?></dt>
+            <dd><?php echo h($end_parts[0])?></dd>
+            <dt><?php echo $lang["$language"]['period']?></dt>
+            <dd><?php echo $period?> <?php echo $lang["$language"]['days']?></dd>
+        </dl>
+    </section>
+    <section class="card">
+        <h2><?php echo $lang["$language"]['totals']?></h2>
+        <dl class="kv">
+            <dt><?php echo $lang["$language"]['number_answered']?></dt>
+            <dd><?php echo $answered?> <?php echo $lang["$language"]['calls']?></dd>
+            <dt><?php echo $lang["$language"]['number_unanswered']?></dt>
+            <dd><?php echo $unanswered?> <?php echo $lang["$language"]['calls']?></dd>
+            <dt><?php echo $lang["$language"]['agent_login']?></dt>
+            <dd><?php echo $login?></dd>
+            <dt><?php echo $lang["$language"]['agent_logoff']?></dt>
+            <dd><?php echo $logoff?></dd>
+        </dl>
+    </section>
+</div>
 
-            </td>
-            <td style="width: 50%; vertical-align: top;">
-                <table style='width: 100%; border: 0; border-collapse: collapse; border-spacing: 0;'>
-                <caption><?php echo $lang["$language"]['totals']?></caption>
-                <tbody>
-                <tr> 
-                  <td><?php echo $lang["$language"]['number_answered']?>:</td>
-                  <td><?php echo $answered?> <?php echo $lang["$language"]['calls']?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['number_unanswered']?>:</td>
-                  <td><?php echo $unanswered?> <?php echo $lang["$language"]['calls']?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['agent_login']?>:</td>
-                  <td><?php echo $login?></td>
-                </tr>
-                <tr>
-                  <td><?php echo $lang["$language"]['agent_logoff']?>:</td>
-                  <td><?php echo $logoff?></td>
-                </tr>
-                </tbody>
-              </table>
-            </td>
-        </tr>
-        </thead>
-        </table>
-        <br/>    
-            <?php
-                if(count($dias)<=0) {
-                    $dias['']=0;
-                }
-            ?>
-            <a id='1'></a>
-            <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" class='sortable' id='table1' >
-            <caption>
-            <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
-            <?php 
-            tooltip($lang["$language"]['gotop']);
-            ?>
-            ></a>&nbsp;&nbsp;
-            <?php echo $lang["$language"]['call_distrib_day']?>
-            </caption>
-                <thead>
-                <tr>
-                    <th><?php echo $lang["$language"]['date']?></th>
-                    <th><?php echo $lang["$language"]['answered']?></th>
-                    <th><?php echo $lang["$language"]['percent_answered']?></th>
-                    <th><?php echo $lang["$language"]['unanswered']?></th>
-                    <th><?php echo $lang["$language"]['percent_unanswered']?></th>
-                    <th><?php echo $lang["$language"]['avg_calltime']?></th>
-                    <th><?php echo $lang["$language"]['avg_holdtime']?></th>
-                    <th><?php echo $lang["$language"]['login']?></th>
-                    <th><?php echo $lang["$language"]['logoff']?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                $header_pdf=array($lang["$language"]['date'],$lang["$language"]['answered'],$lang["$language"]['percent_answered'],$lang["$language"]['unanswered'],$lang["$language"]['percent_unanswered'],$lang["$language"]['avg_calltime'],$lang["$language"]['avg_holdtime'],$lang["$language"]['login'],$lang["$language"]['logoff']);
-                $width_pdf=array(25,23,23,23,23,25,25,20,20);
-                $title_pdf=$lang["$language"]['call_distrib_day'];
+<?php
+if(count($dias)<=0) {
+    $dias['']=0;
+}
+?>
+<section class="report" id="1">
+    <h2><?php echo $lang["$language"]['call_distrib_day']?></h2>
+    <div class="table-wrap">
+    <table class="data sortable" id="table1">
+        <?php
+        $header_pdf=distribution_header('date');
+        print_header_row($header_pdf);
+        ?>
+        <tbody>
+        <?php
+        $width_pdf=array(25,23,23,23,23,25,25,20,20);
+        $title_pdf=$lang["$language"]['call_distrib_day'];
+        $data_pdf = array();
 
-                $count=1;
-                foreach($dias as $key) {
-                    $cual = $count%2;
-                    if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
-                    if(!isset($ans_by_day["$key"])) {
-                        $ans_by_day["$key"]=0;
-                    }
-                    if(!isset($unans_by_day["$key"])) {
-                        $unans_by_day["$key"]=0;
-                    }
-                    if($answered > 0) {
-                        $percent_ans   = $ans_by_day["$key"]   * 100 / $answered;
-                    } else {
-                        $percent_ans = 0;
-                    }
-                    if($ans_by_day["$key"] >0) {
-                        $average_call_duration = $total_time_by_day["$key"] / $ans_by_day["$key"];
-                        $average_hold_duration = $total_hold_by_day["$key"] / $ans_by_day["$key"];
-                    } else {
-                        $average_call_duration = 0;
-                        $average_hold_duration = 0;
-                    }
-                    if($unanswered > 0) {
-                        $percent_unans = $unans_by_day["$key"] * 100 / $unanswered;
-                    } else {
-                        $percent_unans = 0;
-                    }
-                    $percent_ans   = number_format($percent_ans,  2);
-                    $percent_unans = number_format($percent_unans,2);
-                    $average_call_duration_print = seconds2minutes($average_call_duration);
-                    if($key<>"") {
-                    $login_by_day["$key"]  = $login_by_day["$key"]  ?? 0;
-                    $logout_by_day["$key"] = $logout_by_day["$key"] ?? 0;
-                    $linea_pdf = array($key,$ans_by_day["$key"],"$percent_ans ".$lang["$language"]['percent'],$unans_by_day["$key"],"$percent_unans ".$lang["$language"]['percent'],$average_call_duration_print,number_format($average_hold_duration,0),$login_by_day["$key"],$logout_by_day["$key"]);
+        $count=1;
+        foreach($dias as $key) {
+            if(!isset($ans_by_day["$key"])) {
+                $ans_by_day["$key"]=0;
+            }
+            if(!isset($unans_by_day["$key"])) {
+                $unans_by_day["$key"]=0;
+            }
+            if($answered > 0) {
+                $percent_ans   = $ans_by_day["$key"]   * 100 / $answered;
+            } else {
+                $percent_ans = 0;
+            }
+            if($ans_by_day["$key"] >0) {
+                $average_call_duration = $total_time_by_day["$key"] / $ans_by_day["$key"];
+                $average_hold_duration = $total_hold_by_day["$key"] / $ans_by_day["$key"];
+            } else {
+                $average_call_duration = 0;
+                $average_hold_duration = 0;
+            }
+            if($unanswered > 0) {
+                $percent_unans = $unans_by_day["$key"] * 100 / $unanswered;
+            } else {
+                $percent_unans = 0;
+            }
+            $percent_ans   = number_format($percent_ans,  2);
+            $percent_unans = number_format($percent_unans,2);
+            $average_call_duration_print = seconds2minutes($average_call_duration);
+            if($key<>"") {
+                $login_by_day["$key"]  = $login_by_day["$key"]  ?? 0;
+                $logout_by_day["$key"] = $logout_by_day["$key"] ?? 0;
+                $linea_pdf = array($key,$ans_by_day["$key"],"$percent_ans ".$lang["$language"]['percent'],$unans_by_day["$key"],"$percent_unans ".$lang["$language"]['percent'],$average_call_duration_print,number_format($average_hold_duration,0),$login_by_day["$key"],$logout_by_day["$key"]);
 
-                    echo "<tr $odd>\n";
-                    echo "<td>$key</td>\n";
-                    echo "<td>".$ans_by_day["$key"]."</td>\n";
-                    echo "<td>$percent_ans ".$lang["$language"]['percent']."</td>\n";
-                    echo "<td>".$unans_by_day["$key"]."</td>\n";
-                    echo "<td>$percent_unans".$lang["$language"]['percent']."</td>\n";
-                    echo "<td>".$average_call_duration_print." ".$lang["$language"]['minutes']."</td>\n";
-                    echo "<td>".number_format($average_hold_duration,0)." ".$lang["$language"]['secs']."</td>\n";
-                    echo "<td>".$login_by_day["$key"]."</td>\n";
-                    echo "<td>".$logout_by_day["$key"]."</td>\n";
-                    echo "</tr>\n";
-                    $count++;
-                    $data_pdf[]=$linea_pdf;
-                    }
-                }
-                ?>
-            </tbody>
-            </table>
-            
-            <?php
-                if($count>1) {
-                    print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf); 
-                }
-            ?>
-            <br/>
-            
-            <a id='2'></a>
-            <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" class='sortable' id='table2' >
-            <caption>
-            <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
-            <?php 
-            tooltip($lang["$language"]['gotop']);
-            ?>
-            ></a>&nbsp;&nbsp;
-            <?php echo $lang["$language"]['call_distrib_hour']?>
-            </caption>
-                <thead>
-                <tr>
-                                  <th><?php echo $lang["$language"]['hour']?></th>
-                                  <th><?php echo $lang["$language"]['answered']?></th>
-                                  <th><?php echo $lang["$language"]['percent_answered']?></th>
-                                  <th><?php echo $lang["$language"]['unanswered']?></th>
-                                  <th><?php echo $lang["$language"]['percent_unanswered']?></th>
-                                  <th><?php echo $lang["$language"]['avg_calltime']?></th>
-                                  <th><?php echo $lang["$language"]['avg_holdtime']?></th>
-                                  <th><?php echo $lang["$language"]['login']?></th>
-                                  <th><?php echo $lang["$language"]['logoff']?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
+                echo "<tr>\n";
+                echo "<td>".h($key)."</td>\n";
+                echo "<td>".$ans_by_day["$key"]."</td>\n";
+                echo "<td>$percent_ans ".$lang["$language"]['percent']."</td>\n";
+                echo "<td>".$unans_by_day["$key"]."</td>\n";
+                echo "<td>$percent_unans ".$lang["$language"]['percent']."</td>\n";
+                echo "<td>".$average_call_duration_print." ".$lang["$language"]['minutes']."</td>\n";
+                echo "<td>".number_format($average_hold_duration,0)." ".$lang["$language"]['secs']."</td>\n";
+                echo "<td>".$login_by_day["$key"]."</td>\n";
+                echo "<td>".$logout_by_day["$key"]."</td>\n";
+                echo "</tr>\n";
+                $count++;
+                $data_pdf[]=$linea_pdf;
+            }
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    if($count>1) {
+        print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf);
+    }
+    ?>
+</section>
 
-                $header_pdf=array($lang["$language"]['hour'],$lang["$language"]['answered'],$lang["$language"]['percent_answered'],$lang["$language"]['unanswered'],$lang["$language"]['percent_unanswered'],$lang["$language"]['avg_calltime'],$lang["$language"]['avg_holdtime'],$lang["$language"]['login'],$lang["$language"]['logoff']);
-                $width_pdf=array(25,23,23,23,23,25,25,20,20);
-                $title_pdf=$lang["$language"]['call_distrib_hour'];
-                $data_pdf = array();
+<section class="report" id="2">
+    <h2><?php echo $lang["$language"]['call_distrib_hour']?></h2>
+    <div class="table-wrap">
+    <table class="data sortable" id="table2">
+        <?php
+        $header_pdf=distribution_header('hour');
+        print_header_row($header_pdf);
+        ?>
+        <tbody>
+        <?php
+        $width_pdf=array(25,23,23,23,23,25,25,20,20);
+        $title_pdf=$lang["$language"]['call_distrib_hour'];
+        $data_pdf = array();
 
-                $chart_labels = array();
-                $chart_ans    = array();
-                $chart_unans  = array();
-                $chart_time   = array();
-                $chart_hold   = array();
-                for($key=0;$key<24;$key++) {
-                    $cual = ($key+1)%2;
-                    if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
-                    if(strlen($key)==1) { $key = "0".$key; }
-                    if(!isset($ans_by_hour["$key"])) {
-                        $ans_by_hour["$key"]=0;
-                        $average_call_duration = 0;
-                        $average_hold_duration = 0;
-                    } else {
-                        $average_call_duration = $total_time_by_hour["$key"] / $ans_by_hour["$key"];
-                        $average_hold_duration = $total_hold_by_hour["$key"] / $ans_by_hour["$key"];
-                    }
-                    if(!isset($unans_by_hour["$key"])) {
-                        $unans_by_hour["$key"]=0;
-                    }
-                    if($answered > 0) {
-                        $percent_ans   = $ans_by_hour["$key"]   * 100 / $answered;
-                    } else {
-                        $percent_ans = 0;
-                    }
-                    if($unanswered > 0) {
-                        $percent_unans = $unans_by_hour["$key"] * 100 / $unanswered;
-                    } else {
-                        $percent_unans = 0;
-                    }
-                    $percent_ans   = number_format($percent_ans,  2);
-                    $percent_unans = number_format($percent_unans,2);
+        $chart_labels = array();
+        $chart_ans    = array();
+        $chart_unans  = array();
+        $chart_time   = array();
+        $chart_hold   = array();
+        for($key=0;$key<24;$key++) {
+            if(strlen($key)==1) { $key = "0".$key; }
+            if(!isset($ans_by_hour["$key"])) {
+                $ans_by_hour["$key"]=0;
+                $average_call_duration = 0;
+                $average_hold_duration = 0;
+            } else {
+                $average_call_duration = $total_time_by_hour["$key"] / $ans_by_hour["$key"];
+                $average_hold_duration = $total_hold_by_hour["$key"] / $ans_by_hour["$key"];
+            }
+            if(!isset($unans_by_hour["$key"])) {
+                $unans_by_hour["$key"]=0;
+            }
+            if($answered > 0) {
+                $percent_ans   = $ans_by_hour["$key"]   * 100 / $answered;
+            } else {
+                $percent_ans = 0;
+            }
+            if($unanswered > 0) {
+                $percent_unans = $unans_by_hour["$key"] * 100 / $unanswered;
+            } else {
+                $percent_unans = 0;
+            }
+            $percent_ans   = number_format($percent_ans,  2);
+            $percent_unans = number_format($percent_unans,2);
 
-                    if(!isset($login_by_hour["$key"])) {
-                        $login_by_hour["$key"]=0;
-                    }
-                    if(!isset($logout_by_hour["$key"])) {
-                        $logout_by_hour["$key"]=0;
-                    }
+            if(!isset($login_by_hour["$key"])) {
+                $login_by_hour["$key"]=0;
+            }
+            if(!isset($logout_by_hour["$key"])) {
+                $logout_by_hour["$key"]=0;
+            }
 
-                    $linea_pdf = array($key,$ans_by_hour["$key"],"$percent_ans ".$lang["$language"]['percent'],$unans_by_hour["$key"],"$percent_unans ".$lang["$language"]['percent'],number_format($average_call_duration,0),number_format($average_hold_duration,0),$login_by_hour["$key"],$logout_by_hour["$key"]);
+            $linea_pdf = array($key,$ans_by_hour["$key"],"$percent_ans ".$lang["$language"]['percent'],$unans_by_hour["$key"],"$percent_unans ".$lang["$language"]['percent'],number_format($average_call_duration,0),number_format($average_hold_duration,0),$login_by_hour["$key"],$logout_by_hour["$key"]);
 
-                    echo "<tr $odd>\n";
-                    echo "<td>$key</td>\n";
-                    echo "<td>".$ans_by_hour["$key"]."</td>\n";
-                    echo "<td>$percent_ans".$lang["$language"]['percent']."</td>\n";
-                    echo "<td>".$unans_by_hour["$key"]."</td>\n";
-                    echo "<td>$percent_unans".$lang["$language"]['percent']."</td>\n";
-                    echo "<td>".number_format($average_call_duration,0)." ".$lang["$language"]['secs']."</td>\n";
-                    echo "<td>".number_format($average_hold_duration,0)." ".$lang["$language"]['secs']."</td>\n";
-                    echo "<td>".$login_by_hour["$key"]."</td>\n";
-                    echo "<td>".$logout_by_hour["$key"]."</td>\n";
-                    echo "</tr>\n";
-                    $chart_labels[] = "$key ".$lang["$language"]['hours'];
-                    $chart_ans[]    = $ans_by_hour["$key"];
-                    $chart_unans[]  = $unans_by_hour["$key"];
-                    $chart_time[]   = intval($average_call_duration);
-                    $chart_hold[]   = intval($average_hold_duration);
-                    $data_pdf[]=$linea_pdf;
-                }
-                ?>
-            </tbody>
-            </table>
-            <?php
-                print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf); 
-            ?>
+            echo "<tr>\n";
+            echo "<td>$key</td>\n";
+            echo "<td>".$ans_by_hour["$key"]."</td>\n";
+            echo "<td>$percent_ans ".$lang["$language"]['percent']."</td>\n";
+            echo "<td>".$unans_by_hour["$key"]."</td>\n";
+            echo "<td>$percent_unans ".$lang["$language"]['percent']."</td>\n";
+            echo "<td>".number_format($average_call_duration,0)." ".$lang["$language"]['secs']."</td>\n";
+            echo "<td>".number_format($average_hold_duration,0)." ".$lang["$language"]['secs']."</td>\n";
+            echo "<td>".$login_by_hour["$key"]."</td>\n";
+            echo "<td>".$logout_by_hour["$key"]."</td>\n";
+            echo "</tr>\n";
+            $chart_labels[] = "$key ".$lang["$language"]['hours'];
+            $chart_ans[]    = $ans_by_hour["$key"];
+            $chart_unans[]  = $unans_by_hour["$key"];
+            $chart_time[]   = intval($average_call_duration);
+            $chart_hold[]   = intval($average_hold_duration);
+            $data_pdf[]=$linea_pdf;
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf);
+    echo "<div class='charts charts-stack'>\n";
+    chart_bar("chart1", $lang["$language"]['anws_unanws_by_hour'], $chart_labels,
+        array($lang["$language"]['answered_calls']=>$chart_ans, $lang["$language"]['unanswered_calls']=>$chart_unans),
+        array('stacked'=>true, 'wide'=>true));
+    chart_bar("chart3", $lang["$language"]['avg_call_time_by_hr'], $chart_labels, array($lang["$language"]['seconds']=>$chart_time), array('wide'=>true));
+    chart_bar("chart4", $lang["$language"]['avg_hold_time_by_hr'], $chart_labels, array($lang["$language"]['seconds']=>$chart_hold), array('wide'=>true));
+    echo "</div>\n";
+    ?>
+</section>
 
-            <br/>
+<section class="report" id="3">
+    <h2><?php echo $lang["$language"]['call_distrib_week']?></h2>
+    <div class="table-wrap">
+    <table class="data sortable" id="table3">
+        <?php
+        $header_pdf=distribution_header('day');
+        print_header_row($header_pdf);
+        ?>
+        <tbody>
+        <?php
+        $width_pdf=array(25,23,23,23,23,25,25,20,20);
+        $title_pdf=$lang["$language"]['call_distrib_week'];
+        $data_pdf = array();
 
-            <table style='width: 99%; border-collapse: separate; border-spacing: 1px;'>
-            <thead>
-            <tr>
-                <td style='text-align:center; background-color: #fffdf3;'>
-                <hr>
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align:center; background-color: #fffdf3;'>
-                    <?php
-                    chart_bar("chart1", $lang["$language"]['anws_unanws_by_hour'], $chart_labels,
-                        array($lang["$language"]['answered_calls']=>$chart_ans, $lang["$language"]['unanswered_calls']=>$chart_unans),
-                        array('stacked'=>true, 'wide'=>true));
-                    ?>
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align:center; background-color: #fffdf3;'>
-                    <?php
-                    chart_bar("chart3", $lang["$language"]['avg_call_time_by_hr'], $chart_labels, array($lang["$language"]['seconds']=>$chart_time), array('wide'=>true));
-                    ?>
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align:center; background-color: #fffdf3;'>
-                    <?php
-                    chart_bar("chart4", $lang["$language"]['avg_hold_time_by_hr'], $chart_labels, array($lang["$language"]['seconds']=>$chart_hold), array('wide'=>true));
-                    ?>
-                </td>
-            </tr>
-            </thead>
-            </table>
+        $chart_labels = array();
+        $chart_ans    = array();
+        $chart_unans  = array();
+        $chart_time   = array();
+        $chart_hold   = array();
+        for($key=0;$key<7;$key++) {
+            if(!isset($total_time_by_dw["$key"])) {
+                $total_time_by_dw["$key"]=0;
+            }
+            if(!isset($total_hold_by_dw["$key"])) {
+                $total_hold_by_dw["$key"]=0;
+            }
+            if(!isset($ans_by_dw["$key"])) {
+                $ans_by_dw["$key"]=0;
+                $average_call_duration = 0;
+                $average_hold_duration = 0;
+            } else {
+                $average_call_duration = $total_time_by_dw["$key"] / $ans_by_dw["$key"];
+                $average_hold_duration = $total_hold_by_dw["$key"] / $ans_by_dw["$key"];
+            }
 
-            <br/>
+            if(!isset($unans_by_dw["$key"])) {
+                $unans_by_dw["$key"]=0;
+            }
+            if($answered > 0) {
+                $percent_ans   = $ans_by_dw["$key"]   * 100 / $answered;
+            } else {
+                $percent_ans = 0;
+            }
+            if($unanswered > 0) {
+                $percent_unans = $unans_by_dw["$key"] * 100 / $unanswered;
+            } else {
+                $percent_unans = 0;
+            }
+            $percent_ans   = number_format($percent_ans,  2);
+            $percent_unans = number_format($percent_unans,2);
 
-            <a id='3'></a>
-            <table style="width: 99%; border-collapse: separate; border-spacing: 1px;" class='sortable' id='table3' >
-            <caption>
-            <a href='#0'><img alt='go up' src='images/go-up.png' width=16 height=16 class='icon' 
-            <?php 
-            tooltip($lang["$language"]['gotop']);
-            ?>
-            ></a>&nbsp;&nbsp;
+            if(!isset($login_by_dw["$key"])) {
+                $login_by_dw["$key"]=0;
+            }
+            if(!isset($logout_by_dw["$key"])) {
+                $logout_by_dw["$key"]=0;
+            }
 
-            <?php echo $lang["$language"]['call_distrib_week']?>
-            </caption>
-                <thead>
-                <tr>
-                    <th><?php echo $lang["$language"]['day']?></th>
-                    <th><?php echo $lang["$language"]['answered']?></th>
-                    <th><?php echo $lang["$language"]['percent_answered']?></th>
-                    <th><?php echo $lang["$language"]['unanswered']?></th>
-                    <th><?php echo $lang["$language"]['percent_unanswered']?></th>
-                    <th><?php echo $lang["$language"]['avg_calltime']?></th>
-                    <th><?php echo $lang["$language"]['avg_holdtime']?></th>
-                    <th><?php echo $lang["$language"]['login']?></th>
-                    <th><?php echo $lang["$language"]['logoff']?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
+            $linea_pdf = array($dayp["$key"],$ans_by_dw["$key"],"$percent_ans ".$lang["$language"]['percent'],$unans_by_dw["$key"],"$percent_unans ".$lang["$language"]['percent'],number_format($average_call_duration,0),number_format($average_hold_duration,0),$login_by_dw["$key"],$logout_by_dw["$key"]);
 
-                $header_pdf=array($lang["$language"]['day'],$lang["$language"]['answered'],$lang["$language"]['percent_answered'],$lang["$language"]['unanswered'],$lang["$language"]['percent_unanswered'],$lang["$language"]['avg_calltime'],$lang["$language"]['avg_holdtime'],$lang["$language"]['login'],$lang["$language"]['logoff']);
-                $width_pdf=array(25,23,23,23,23,25,25,20,20);
-                $title_pdf=$lang["$language"]['call_distrib_week'];
-                $data_pdf = array();
-
-
-                $chart_labels = array();
-                $chart_ans    = array();
-                $chart_unans  = array();
-                $chart_time   = array();
-                $chart_hold   = array();
-                for($key=0;$key<7;$key++) {
-                    $cual = ($key+1)%2;
-                    if($cual>0) { $odd = " class='odd' "; } else { $odd = ""; }
-                    if(!isset($total_time_by_dw["$key"])) {
-                        $total_time_by_dw["$key"]=0;
-                    }
-                    if(!isset($total_hold_by_dw["$key"])) {
-                        $total_hold_by_dw["$key"]=0;
-                    }
-                    if(!isset($ans_by_dw["$key"])) {
-                        $ans_by_dw["$key"]=0;
-                        $average_call_duration = 0;
-                        $average_hold_duration = 0;
-                    } else {
-                        $average_call_duration = $total_time_by_dw["$key"] / $ans_by_dw["$key"];
-                        $average_hold_duration = $total_hold_by_dw["$key"] / $ans_by_dw["$key"];
-                    }
-
-                    if(!isset($unans_by_dw["$key"])) {
-                        $unans_by_dw["$key"]=0;
-                    }
-                    if($answered > 0) {
-                        $percent_ans   = $ans_by_dw["$key"]   * 100 / $answered;
-                    } else {
-                        $percent_ans = 0;
-                    }
-                    if($unanswered > 0) {
-                        $percent_unans = $unans_by_dw["$key"] * 100 / $unanswered;
-                    } else {
-                        $percent_unans = 0;
-                    }
-                    $percent_ans   = number_format($percent_ans,  2);
-                    $percent_unans = number_format($percent_unans,2);
-
-                    if(!isset($login_by_dw["$key"])) {
-                        $login_by_dw["$key"]=0;
-                    }
-                    if(!isset($logout_by_dw["$key"])) {
-                        $logout_by_dw["$key"]=0;
-                    }
-
-                    $linea_pdf = array($dayp["$key"],$ans_by_dw["$key"],"$percent_ans ".$lang["$language"]['percent'],$unans_by_dw["$key"],"$percent_unans ".$lang["$language"]['percent'],number_format($average_call_duration,0),number_format($average_hold_duration,0),$login_by_dw["$key"],$logout_by_dw["$key"]);
-
-                    echo "<tr $odd>\n";
-                    echo "<td>".$dayp["$key"]."</td>\n";
-                    echo "<td>".$ans_by_dw["$key"]."</td>\n";
-                    echo "<td>$percent_ans".$lang["$language"]['percent']."</td>\n";
-                    echo "<td>".$unans_by_dw["$key"]."</td>\n";
-                    echo "<td>$percent_unans".$lang["$language"]['percent']."</td>\n";
-                    echo "<td>".number_format($average_call_duration,0)." secs</td>\n";
-                    echo "<td>".number_format($average_hold_duration,0)." secs</td>\n";
-                    echo "<td>".$login_by_dw["$key"]."</td>\n";
-                    echo "<td>".$logout_by_dw["$key"]."</td>\n";
-                    echo "</tr>\n";
-                    $chart_labels[] = $dayp["$key"];
-                    $chart_ans[]    = intval($ans_by_dw["$key"]);
-                    $chart_unans[]  = intval($unans_by_dw["$key"]);
-                    $chart_time[]   = intval($average_call_duration);
-                    $chart_hold[]   = intval($average_hold_duration);
-                    $data_pdf[]=$linea_pdf;
-                }
-                ?>
-            </tbody>
-            </table>
-            <?php
-                print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf); 
-            ?>
-            <br/>
-
-            <table style='width: 99%; border-collapse: separate; border-spacing: 1px;'>
-            <thead>
-            <tr>
-                <td style='text-align:center; background-color: #fffdf3;'>
-                    <?php
-                    chart_bar("chart5", $lang["$language"]['answ_by_day'], $chart_labels, array($lang["$language"]['Calls']=>$chart_ans));
-                    ?>
-                </td>
-                <td style='text-align:center; background-color: #fffdf3;'>
-                    <?php
-                    chart_bar("chart6", $lang["$language"]['unansw_by_day'], $chart_labels, array($lang["$language"]['Calls']=>$chart_unans));
-                    ?>
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align:center; background-color: #fffdf3;'>
-                    <?php
-                    chart_bar("chart7", $lang["$language"]['avg_call_time_by_day'], $chart_labels, array($lang["$language"]['seconds']=>$chart_time));
-                    ?>
-                </td>
-                <td style='text-align:center; background-color: #fffdf3;'>
-                    <?php
-                    chart_bar("chart8", $lang["$language"]['avg_hold_time_by_day'], $chart_labels, array($lang["$language"]['seconds']=>$chart_hold));
-                    ?>
-                </td>
-            </tr>
-            </thead>
-            </table>
-
+            echo "<tr>\n";
+            echo "<td>".$dayp["$key"]."</td>\n";
+            echo "<td>".$ans_by_dw["$key"]."</td>\n";
+            echo "<td>$percent_ans ".$lang["$language"]['percent']."</td>\n";
+            echo "<td>".$unans_by_dw["$key"]."</td>\n";
+            echo "<td>$percent_unans ".$lang["$language"]['percent']."</td>\n";
+            echo "<td>".number_format($average_call_duration,0)." ".$lang["$language"]['secs']."</td>\n";
+            echo "<td>".number_format($average_hold_duration,0)." ".$lang["$language"]['secs']."</td>\n";
+            echo "<td>".$login_by_dw["$key"]."</td>\n";
+            echo "<td>".$logout_by_dw["$key"]."</td>\n";
+            echo "</tr>\n";
+            $chart_labels[] = $dayp["$key"];
+            $chart_ans[]    = intval($ans_by_dw["$key"]);
+            $chart_unans[]  = intval($unans_by_dw["$key"]);
+            $chart_time[]   = intval($average_call_duration);
+            $chart_hold[]   = intval($average_hold_duration);
+            $data_pdf[]=$linea_pdf;
+        }
+        ?>
+        </tbody>
+    </table>
+    </div>
+    <?php
+    print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf);
+    echo "<div class='charts charts-grid'>\n";
+    chart_bar("chart5", $lang["$language"]['answ_by_day'], $chart_labels, array($lang["$language"]['Calls']=>$chart_ans));
+    chart_bar("chart6", $lang["$language"]['unansw_by_day'], $chart_labels, array($lang["$language"]['Calls']=>$chart_unans));
+    chart_bar("chart7", $lang["$language"]['avg_call_time_by_day'], $chart_labels, array($lang["$language"]['seconds']=>$chart_time));
+    chart_bar("chart8", $lang["$language"]['avg_hold_time_by_day'], $chart_labels, array($lang["$language"]['seconds']=>$chart_hold));
+    echo "</div>\n";
+    ?>
+</section>
 <?php include("footer.php"); ?>

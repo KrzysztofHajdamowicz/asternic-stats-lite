@@ -75,7 +75,7 @@ $time = explode(" ", $time);
 $time = $time[1] + $time[0];
 $endtime = $time;
 $totaltime = ($endtime - $begintime);
-echo "<br/><br/>".$lang[$language]['server_time']." ".date('Y-m-d H:i:s')."<br/>";
-echo $lang[$language]['php_parsed']." $totaltime ".$lang[$language]['seconds'];
+echo "<p class='meta'>".$lang[$language]['server_time']." ".date('Y-m-d H:i:s')." &middot; ";
+echo $lang[$language]['php_parsed']." ".number_format($totaltime,3)." ".$lang[$language]['seconds']."</p>";
 ?>
 

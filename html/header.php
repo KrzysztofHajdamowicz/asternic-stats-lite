@@ -12,15 +12,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Asternic Call Center Stats</title>
   <meta name="description" content="Asternic Call Center Stats Lite Reports">
-  <link rel="stylesheet" href="css/basic.css">
-  <link rel="stylesheet" href="css/tab.css">
-  <link rel="stylesheet" href="css/table.css">
-  <link rel="stylesheet" href="css/fixed-all.css">
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="css/app.css">
 <?php foreach (($page_scripts ?? array()) as $script) { ?>
   <script src="<?php echo h($script); ?>" defer></script>
 <?php } ?>
 </head>
 <body>
 <?php include("menu.php"); ?>
-<div id="main">
-<div id="contents">
+<main class="page">
