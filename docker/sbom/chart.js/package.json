@@ -1,0 +1,11 @@
+{
+  "name": "chart.js",
+  "version": "4.5.1",
+  "description": "Vendored as html/js/vendor/chart.umd.min.js",
+  "homepage": "https://www.chartjs.org",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chartjs/Chart.js.git"
+  }
+}

@@ -1,0 +1,5 @@
+# Build context of docker/web and docker/parselog is the repository root.
+.git
+.github
+parselogd
+docker/sbom/check.sh

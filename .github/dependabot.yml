@@ -8,13 +8,20 @@ updates:
       go-modules:
         update-types: [minor, patch]
 
+  # Base images. php:8.5-* are floating tags (every build pulls the newest
+  # patch release), so Dependabot only proposes moves to a new PHP branch.
   - package-ecosystem: docker
-    directory: /parselogd
+    directories:
+      - /parselogd
+      - /docker/web
+      - /docker/parselog
     schedule:
       interval: weekly
 
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - /
+      - /.github/actions/*
     schedule:
       interval: weekly
     groups:
