@@ -1,4 +1,7 @@
 /*
+   Copyright 2026 Krzysztof Hajdamowicz
+   Part of Asternic Call Center Stats Lite, GPL-3.0-or-later (see LICENSE).
+
    Click a column header of a <table class="sortable"> to sort its rows;
    click again to reverse. Works for tables added later too (realtime tab).
 

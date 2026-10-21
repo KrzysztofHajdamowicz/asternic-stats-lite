@@ -1,4 +1,7 @@
 /*
+   Copyright 2026 Krzysztof Hajdamowicz
+   Part of Asternic Call Center Stats Lite, GPL-3.0-or-later (see LICENSE).
+
    Report form on the home page: queue/agent pickers, date shortcuts and
    the checks done before the form is sent.
 */

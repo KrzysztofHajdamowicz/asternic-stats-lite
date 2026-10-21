@@ -1,4 +1,7 @@
 /*
+   Copyright 2026 Krzysztof Hajdamowicz
+   Part of Asternic Call Center Stats Lite, GPL-3.0-or-later (see LICENSE).
+
    Draws every <canvas data-chart='{...}'> on the page with Chart.js.
    The JSON comes from chart_bar() in misc.php:
      { title, labels: [...], datasets: [{label, data: [...]}, ...], stacked }

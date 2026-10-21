@@ -4,6 +4,19 @@
 
 Asternic Call Center Stats Lite is an open-source queue reporting solution for Asterisk© PBX. It provides detailed call center statistics and reporting capabilities for organizations using Asterisk telephony systems.
 
+## About this fork
+
+This is a modified version of Asternic Call Center Stats Lite 1.8 by
+Nicolás Gudiño ([asternic/asternic-stats-lite](https://github.com/asternic/asternic-stats-lite)),
+maintained by Krzysztof Hajdamowicz since 2026. Changes made in 2026: PHP 8.5
+support, a rewritten frontend (Chart.js 4, plain JavaScript, new stylesheet)
+and `parselogd`, a Go replacement for `parselog.php`. The full list is in the
+git history.
+
+Copyright 2007–2026 Nicolás Gudiño; modifications copyright 2026 Krzysztof
+Hajdamowicz. Distributed under the GNU General Public License version 3 or
+later, see `LICENSE`.
+
 ## Requirements
 
 - Linux server

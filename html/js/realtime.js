@@ -1,4 +1,7 @@
 /*
+   Copyright 2026 Krzysztof Hajdamowicz
+   Part of Asternic Call Center Stats Lite, GPL-3.0-or-later (see LICENSE).
+
    Realtime tab: reloads the agent and queue status from auxstate_helper.php
    every few seconds. Polling pauses while the browser tab is hidden.
 */

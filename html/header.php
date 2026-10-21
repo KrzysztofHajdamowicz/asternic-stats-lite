@@ -1,5 +1,8 @@
 <?php
 /*
+   Copyright 2026 Krzysztof Hajdamowicz
+   Part of Asternic Call Center Stats Lite, GPL-3.0-or-later (see LICENSE).
+
    Common page header. Include after config.php (and sesvars.php).
 
    $page_scripts: optional list of extra JavaScript files for this page.
