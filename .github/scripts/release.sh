@@ -25,12 +25,14 @@ deadline=$(( $(date +%s) + ${WAIT_MINUTES:-60} * 60 ))
 for image in "${images[@]}"; do
 	ref=$registry/$image:$version
 	# Plain output: --format would also download every config and attestation blob.
-	until digest[$image]=$(docker buildx imagetools inspect "$ref" 2>/dev/null | awk '$1 == "Digest:" { print $2; exit }') && [[ -n ${digest[$image]} ]]; do
+	until out=$(docker buildx imagetools inspect "$ref" 2>&1) &&
+		digest[$image]=$(awk '$1 == "Digest:" { print $2; exit }' <<<"$out") && [[ -n ${digest[$image]} ]]; do
 		if (( $(date +%s) > deadline )); then
 			echo "$ref did not appear; did images.yml and parselogd.yml succeed for $TAG?" >&2
 			exit 1
 		fi
-		echo "waiting for $ref ..."
+		# Not pushed yet, or a registry error: show which, then retry.
+		echo "waiting for $ref: $(tail -n1 <<<"$out")"
 		sleep 30
 	done
 	echo "$ref = ${digest[$image]}"

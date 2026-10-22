@@ -21,6 +21,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # release.sh waits up to 60 minutes for the images.
+    timeout-minutes: 75
     permissions:
       contents: write
       packages: read
