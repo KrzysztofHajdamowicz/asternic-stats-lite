@@ -158,10 +158,20 @@ checks that these files match the vendored code). To verify:
 gh attestation verify oci://ghcr.io/krzysztofhajdamowicz/asternic-web:latest \
   --owner KrzysztofHajdamowicz
 gh attestation verify oci://ghcr.io/krzysztofhajdamowicz/asternic-web:latest \
-  --owner KrzysztofHajdamowicz --predicate-type https://spdx.dev/Document/v2.3
+  --owner KrzysztofHajdamowicz --predicate-type https://cyclonedx.org/bom \
+  --format json | jq '.[0].verificationResult.statement.predicate'   # the SBOM
 docker buildx imagetools inspect ghcr.io/krzysztofhajdamowicz/asternic-web:latest \
-  --format '{{ json .SBOM }}'
+  --format '{{ json .SBOM }}'   # BuildKit SBOM (SPDX), one per platform
 ```
+
+**Releases.** Pushing a version tag (`git tag v2.1.0 && git push origin v2.1.0`)
+builds the images tagged `2.1.0`, `2.1` and `2` and creates a GitHub release
+(`release.yml`) with generated release notes, `docker pull` lines with the
+image digests, the verify commands, and CycloneDX SBOMs as assets:
+`SBOM-<image>-<version>-<amd64|arm64>.cyclonedx.json` for each image and
+`SBOM-source-<version>.cyclonedx.json` for the source tree. The release job
+waits for the image builds. To create or refresh the release of an existing
+tag: `gh workflow run release.yml -R KrzysztofHajdamowicz/asternic-stats-lite -f tag=v2.0.0`.
 
 **Dependabot** opens weekly pull requests for the base images
 (`docker/web`, `docker/parselog`, `parselogd`), Go modules and GitHub
