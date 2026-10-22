@@ -29,7 +29,7 @@ from Asterisk `queue_log` by `parselogd/` (Go, preferred) or `parselog/`
 | `docker/web/`, `docker/parselog/` | Dockerfiles + config of the PHP images (build context = repo root, `.dockerignore`) |
 | `docker/sbom/` | SBOM manifests for vendored Chart.js/FPDF; CI fails if they do not match |
 | `docker-compose.yaml`, `.env.example` | quick start: web + MariaDB + parselogd from GHCR |
-| `.github/workflows/` | `images.yml` (web, parselog), `parselogd.yml`; `.github/actions/publish-image` (GHCR, SBOM, attestations); `dependabot.yml` |
+| `.github/workflows/` | `images.yml` (web, parselog), `parselogd.yml`, `release.yml` (GitHub release + CycloneDX SBOMs for v* tags, logic in `.github/scripts/release.sh`); `.github/actions/publish-image` (GHCR, SBOM, attestations); `dependabot.yml` |
 
 Data flow: `queue_log` line → `queue_stats` row (`qname`/`qagent` are lookup
 ids, `qevent` is a fixed event list) → report SQL in each `html/*.php`.

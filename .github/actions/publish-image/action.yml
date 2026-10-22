@@ -98,9 +98,9 @@ runs:
       if: github.event_name != 'pull_request'
       with:
         image: ${{ steps.image.outputs.ref }}@${{ steps.build.outputs.digest }}
-        format: spdx-json
-        output-file: ${{ runner.temp }}/${{ inputs.name }}.spdx.json
-        artifact-name: ${{ inputs.name }}.spdx.json
+        format: cyclonedx-json
+        output-file: ${{ runner.temp }}/${{ inputs.name }}.cyclonedx.json
+        artifact-name: ${{ inputs.name }}.cyclonedx.json
         registry-username: ${{ github.actor }}
         registry-password: ${{ github.token }}
 
@@ -119,6 +119,6 @@ runs:
       with:
         subject-name: ${{ steps.image.outputs.ref }}
         subject-digest: ${{ steps.build.outputs.digest }}
-        sbom-path: ${{ runner.temp }}/${{ inputs.name }}.spdx.json
+        sbom-path: ${{ runner.temp }}/${{ inputs.name }}.cyclonedx.json
         push-to-registry: true
         create-storage-record: false

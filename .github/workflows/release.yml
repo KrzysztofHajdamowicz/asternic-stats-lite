@@ -1,0 +1,47 @@
+name: release
+
+# GitHub release for every v* tag: release notes, the three images with their
+# digests and verify commands, and CycloneDX SBOMs of every image, platform
+# and of the source tree as assets (see .github/scripts/release.sh). The job
+# waits until images.yml and parselogd.yml have pushed the tag's images.
+# For a tag that already exists, or to refresh the SBOMs:
+#   gh workflow run release.yml -f tag=v2.0.0
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag, e.g. v2.0.0
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      # The script comes from the workflow's commit, the SBOM'd source from the
+      # tag (an older tag may predate the script).
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          path: src
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - id: syft
+        uses: anchore/sbom-action/download-syft@v0
+      - run: .github/scripts/release.sh
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+          SYFT: ${{ steps.syft.outputs.cmd }}
+          SOURCE_DIR: src
+          GH_TOKEN: ${{ github.token }}
